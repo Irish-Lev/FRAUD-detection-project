@@ -561,6 +561,10 @@ with tab4:
             horizontal=True,
             help="OpenAI key already in .env · Claude needs ANTHROPIC_API_KEY · Ollama needs `ollama serve`",
         )
+    if llm_choice == "ollama":
+        st.warning("⚠️ Ollama / Mistral requires a local `ollama serve` instance running on your machine — it will not work on Streamlit Cloud. Switch to **OpenAI GPT-4o-mini** for the live demo.")
+    if llm_choice == "claude":
+        st.warning("⚠️ Claude Haiku requires an ANTHROPIC_API_KEY — no API key has been configured yet. Switch to **OpenAI GPT-4o-mini** for the live demo.")
 
     # Load RAG chain (cached — only runs once per llm_choice)
     chroma_path = ROOT / 'data' / 'chroma_db'
