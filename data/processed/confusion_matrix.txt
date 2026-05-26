@@ -1,0 +1,8 @@
+Confusion Matrix — XGBoost Fraud Classifier
+============================================
+                 Predicted Legit  Predicted Fraud
+Actual Legit            243,211           14,572
+Actual Fraud                 17            1,535
+
+True Negative Rate (Specificity): 0.9435  (94.35% of legit transactions correctly left alone)
+True Positive Rate (Recall):      0.9890  (98.90% of fraud transactions correctly caught)

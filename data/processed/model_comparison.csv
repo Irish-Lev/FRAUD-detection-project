@@ -1,0 +1,4 @@
+Model,PR-AUC,ROC-AUC,Explainable,Best for
+Logistic Regression (baseline),0.2387,0.9023,Yes (coefficients),Simple baseline reference
+XGBoost + FinBERT (primary),0.8462,0.9966,Yes (SHAP),Production — high PR-AUC + full SHAP
+1D CNN (deep learning),0.7588,0.9836,Limited,Deep learning demonstration
