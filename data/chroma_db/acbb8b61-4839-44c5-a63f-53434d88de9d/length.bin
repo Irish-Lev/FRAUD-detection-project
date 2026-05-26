@@ -1,0 +1,8 @@
+ANALYST ACTION FLOW:
+1. Read the fraud score and case type returned by RAG
+2. Check the SHAP waterfall for the specific feature values
+3. Match against the case profile above
+4. Use the "EXPLANATION FOR OPS AGENT" text as the basis for your
+   call script when contacting the cardholder
+5. Log your decision (confirmed fraud / false positive) in the system
+   so the model can learn from real outcome

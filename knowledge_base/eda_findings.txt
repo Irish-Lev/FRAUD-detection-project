@@ -1,0 +1,157 @@
+FRAUD DETECTION EDA FINDINGS — SPARKOV DATASET
+Irish-Lev | Ironhack Data Science & ML Bootcamp | Barcelona 2026
+Source: notebooks/01_eda.ipynb
+
+================================================================
+DATASET OVERVIEW
+================================================================
+
+Total transactions:       1,296,675 (train) + ~555,000 (test)
+Fraud transactions:       ~7,506 in training set
+Fraud rate:               0.5789% (severely imbalanced)
+Date range:               2019-01-01 to 2020-12-31 (2 years)
+Unique merchants:         ~800 merchant names
+Unique categories:        14 merchant categories
+Average fraud amount:     significantly higher than legitimate
+Average legitimate amount: lower, more consistent
+
+================================================================
+FINDING 1 — SEVERE CLASS IMBALANCE (MOST CRITICAL)
+================================================================
+
+Only 0.58% of all transactions are fraudulent.
+For every 1 fraud transaction there are approximately 172 legitimate ones.
+
+WHY THIS MATTERS:
+- Accuracy is useless as a metric — a model predicting "legit" for
+  everything gets 99.42% accuracy but catches ZERO fraud
+- We use Precision-Recall AUC (PR-AUC) as our primary metric, NOT ROC-AUC
+  ROC-AUC is optimistic under severe class imbalance and gives a
+  misleadingly high score even for poor fraud models
+- We apply SMOTE on the training set ONLY to oversample the minority class
+  before model training — never on the full dataset (avoids data leakage)
+- At Stripe in real production, this imbalance is even more extreme:
+  fraud teams work queues of approximately 1 in 500-1000 transactions
+
+IMPLICATION FOR MODEL EVALUATION:
+When an agent or analyst sees a fraud flag, precision matters more than
+recall in most ops contexts — a high false positive rate burns agent
+time and degrades merchant trust. Threshold tuning is essential.
+
+================================================================
+FINDING 2 — TIME OF DAY HAS A STRONG FRAUD SIGNAL
+================================================================
+
+Fraud rate spikes sharply between midnight (00:00) and 4am.
+The high-risk window (0–4am) shows approximately 3-4x the average fraud rate.
+
+WHY THIS MATTERS OPERATIONALLY:
+- Legitimate cardholders have sleep patterns; automated fraud bots do not
+- Fraudsters often run scripts overnight to exploit reduced monitoring
+- At Stripe, hour_of_day is one of the first features fraud rules teams
+  reach for when writing velocity rules and alert thresholds
+- This is a well-known signal across all major payment platforms
+
+FEATURE ENGINEERING IMPLICATION:
+- hour_of_day (0-23) is a core engineered feature in Phase 2
+- is_night flag (binary: 1 if hour between 22:00-06:00) amplifies this signal
+- day_of_week and is_weekend add additional temporal context
+
+================================================================
+FINDING 3 — MERCHANT CATEGORY IS HIGHLY DISCRIMINATIVE
+================================================================
+
+Fraud rates vary dramatically across merchant categories.
+Online and card-not-present categories show the highest fraud rates.
+
+HIGH RISK CATEGORIES (above average fraud rate):
+- shopping_net: HIGHEST — card-not-present online purchases
+  Physical card never verified; stolen card details work just as well
+- misc_net: SECOND HIGHEST — unclassified online merchants
+  Higher risk because merchant type is unclear (harder to model)
+- entertainment: elevated — higher ticket sizes, harder to dispute
+- shopping_pos: moderate — in-person but still targeted
+
+LOWER RISK CATEGORIES:
+- grocery_pos: lower — high volume but small amounts; card-testing risk
+- gas_transport: lower — frequent target for card-testing small charges
+- travel: variable — legitimate large amounts common; hard to flag
+- health_fitness, personal_care: typically low fraud rates
+
+STRIPE CONTEXT:
+Card-not-present (CNP) fraud is the dominant fraud type at online payment
+platforms. When a merchant category is "shopping_net" or "misc_net",
+the fraud probability is elevated before we even look at the amount or
+geographic distance. This is why FinBERT embeddings of merchant name +
+category add genuine signal to the tabular model.
+
+================================================================
+FINDING 4 — GEOGRAPHIC PATTERNS
+================================================================
+
+Top 10 states by fraud rate show geographic clustering.
+States with lower population density show higher per-capita fraud rates
+in some categories — possibly because fewer in-person verification
+checks occur in rural areas.
+
+KEY INSIGHT:
+Geographic distance between the cardholder's registered home address
+and the merchant location is one of the strongest fraud signals available.
+A transaction 800km from home at 2am in an online shopping category
+is a completely different risk profile from a grocery store transaction
+2km from home at 10am.
+
+geo_distance_km (haversine distance between cardholder lat/long and
+merchant merch_lat/merch_long) is engineered in Phase 2 and expected
+to be a top SHAP feature after model training.
+
+================================================================
+FINDING 5 — TRANSACTION AMOUNT PATTERNS
+================================================================
+
+Distribution shape:
+- Raw amount: right-skewed, dominated by a few large values
+- Log-transformed amount: more symmetrical, better for tree models
+- Fraud amounts: shifted right — fraud transactions tend to be larger
+  on average, but with exceptions (card-testing involves very small amounts)
+
+CARD-TESTING PATTERN:
+Fraudsters make many small transactions (under $5-10) to verify a stolen
+card is active before attempting large purchases.
+Signal: very small amounts + high velocity_24h (many txns in 24 hours)
+
+LARGE AMOUNT PATTERN:
+Once a card is verified as active, fraudsters attempt large purchases.
+Signal: amount significantly above the cardholder's historical average,
+combined with an online merchant category and distant location.
+
+log_amt (log1p transformation of amount) is used as a feature in Phase 2
+to capture the amount signal without the raw skew causing model issues.
+
+================================================================
+MISSING VALUES
+================================================================
+
+The Sparkov dataset is simulation-generated and contains ZERO missing values.
+No imputation strategy needed. All 23 columns are complete across all rows.
+This was verified in Cell 3 of 01_eda.ipynb.
+
+================================================================
+CORRELATION FINDINGS (Cell 10)
+================================================================
+
+Numeric features examined: amt, city_pop, hour, is_fraud
+
+Key observations:
+- amt shows weak positive correlation with is_fraud — amount alone is not
+  a strong standalone predictor but contributes in combination with others
+- city_pop shows very weak correlation — population of cardholder city
+  is not a primary fraud signal on its own
+- hour shows weak but non-zero correlation with is_fraud — confirms the
+  time-of-day signal observed in Cell 7
+
+IMPORTANT NOTE:
+Low linear correlation does NOT mean a feature is useless. XGBoost finds
+non-linear relationships. hour_of_day has low linear correlation but is
+a strong signal when combined with category and geo_distance.
+This is why we use tree-based models, not linear models, as our primary.

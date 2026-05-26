@@ -1,0 +1,195 @@
+SHAP FEATURE EXPLANATIONS — FRAUD DETECTION MODEL
+Irish-Lev | Ironhack Data Science & ML Bootcamp | Barcelona 2026
+Source: Phase 2 feature engineering + EDA findings + Stripe domain knowledge
+
+These explanations describe what each engineered feature means in plain English
+and why it matters for fraud detection from an ops perspective.
+Used by the RAG system to generate analyst-friendly explanations.
+
+================================================================
+FEATURE: geo_distance_km
+================================================================
+
+WHAT IT IS:
+The straight-line distance in kilometres between the cardholder's registered
+home address (lat/long columns) and the merchant location (merch_lat/merch_long).
+Calculated using the Haversine formula to account for Earth's curvature.
+Engineered in Phase 2 (02_feature_engineering.ipynb).
+
+WHY IT MATTERS:
+Legitimate cardholders transact near where they live and work.
+Fraud typically involves a mismatch — the fraudster is in a different
+location from the registered cardholder address.
+
+FRAUD SIGNAL THRESHOLDS:
+- Under 50km: typical legitimate range (home, work, local shops)
+- 50–200km: elevated — possible travel but worth noting with other signals
+- 200–500km: high risk — unusual for everyday spending
+- 500km+: very high risk — strong geographic anomaly signal
+
+EXPECTED SHAP IMPACT:
+geo_distance_km is expected to be the top or second most important SHAP
+feature based on the EDA finding that geographic patterns are highly
+discriminative in this dataset. High geo_distance pushes SHAP value
+positive (toward fraud). Low geo_distance pushes negative (toward legit).
+
+REAL-WORLD CONTEXT (Stripe):
+Geographic distance is one of the most reliable fraud signals in production.
+A card registered in one city suddenly used in another country is an
+immediate flag. Real-time geo checks run in under 50ms at production scale.
+
+================================================================
+FEATURE: hour_of_day
+================================================================
+
+WHAT IT IS:
+The hour (0–23) when the transaction was made.
+Extracted from trans_date_trans_time in Phase 2.
+
+WHY IT MATTERS:
+The EDA (Cell 7) showed fraud rate spikes sharply between midnight and 4am —
+approximately 3-4x the average fraud rate during these hours.
+Legitimate cardholders sleep; automated fraud scripts run 24/7.
+
+FRAUD SIGNAL THRESHOLDS:
+- Hours 8–20: normal business hours — lower fraud baseline
+- Hours 20–22: elevated but common for evening shopping
+- Hours 22–24 and 0–6: high-risk window — elevated fraud rate confirmed in EDA
+- Hours 0–4: HIGHEST risk — peak automated fraud activity
+
+EXPECTED SHAP IMPACT:
+High hour values (late night) push SHAP value positive (toward fraud).
+Hours 8-18 (business hours) push SHAP value negative (toward legit).
+Effect is stronger when combined with high geo_distance and online category.
+
+================================================================
+FEATURE: velocity_24h
+================================================================
+
+WHAT IT IS:
+The number of transactions on the same card in the 24 hours preceding
+the current transaction. Engineered in Phase 2 using a rolling time window.
+
+WHY IT MATTERS:
+Normal cardholders make 1–3 transactions per day on average.
+Card-testing fraud involves many rapid small transactions to verify cards.
+Account takeover involves a sudden burst of purchases before the card is blocked.
+
+FRAUD SIGNAL THRESHOLDS:
+- 1–3 transactions: normal daily spending
+- 4–6 transactions: slightly elevated — possible shopping day
+- 7–10 transactions: HIGH — unusual velocity, card-testing likely
+- 10+ transactions: VERY HIGH — strong automated fraud signal
+
+EXPECTED SHAP IMPACT:
+High velocity_24h pushes SHAP value strongly positive (toward fraud).
+Combined with small amounts (card-testing pattern) the effect is amplified.
+
+================================================================
+FEATURE: log_amt
+================================================================
+
+WHAT IT IS:
+The log-transformed transaction amount — log1p(amt).
+The EDA (Cell 5) showed raw amount is right-skewed with outliers.
+Log transformation makes the distribution more symmetric for tree models.
+
+WHY IT MATTERS:
+Transaction amount is a weak standalone predictor (low linear correlation
+confirmed in Cell 10 EDA) but important in combination with other features.
+Very small amounts + high velocity = card-testing.
+Very large amounts + online category + night hour = CNP fraud attempt.
+
+FRAUD SIGNAL CONTEXT:
+Amount alone is not enough — a $500 grocery transaction looks suspicious
+but a $500 travel transaction is expected. The power of log_amt comes
+from its interaction with category, geo_distance, and hour in the model.
+
+================================================================
+FEATURE: is_night
+================================================================
+
+WHAT IT IS:
+Binary flag — 1 if the transaction occurred between 22:00 and 06:00, else 0.
+Derived from hour_of_day in Phase 2.
+
+WHY IT MATTERS:
+Captures the high-risk overnight window identified in the EDA.
+Provides a clean binary signal on top of the continuous hour_of_day feature.
+
+EXPECTED SHAP IMPACT:
+is_night = 1 pushes SHAP positive (toward fraud).
+Effect is strongest when combined with high geo_distance and online category.
+
+================================================================
+FEATURE: age
+================================================================
+
+WHAT IT IS:
+The cardholder's age at the time of the transaction.
+Calculated as transaction year minus birth year (from dob column).
+Engineered in Phase 2.
+
+WHY IT MATTERS:
+Different age groups have different spending patterns.
+Certain fraud types target specific demographics more heavily.
+Age also affects spending norms — an unusually large transaction for
+a given age group raises the anomaly signal.
+
+================================================================
+FEATURE: category_encoded
+================================================================
+
+WHAT IT IS:
+The merchant category label-encoded to a numeric value.
+14 unique categories in the Sparkov dataset.
+Label encoding chosen over one-hot because XGBoost handles ordinal encoding
+well and keeps the feature matrix compact.
+
+WHY IT MATTERS:
+The EDA (Cell 6) showed category is one of the most discriminative features.
+shopping_net and misc_net have the highest fraud rates.
+grocery_pos and gas_transport have lower rates but specific patterns
+(card-testing with small amounts).
+
+EXPECTED SHAP IMPACT:
+Online categories (shopping_net, misc_net) push SHAP strongly positive.
+In-person everyday categories (grocery, gas) push SHAP negative.
+Travel is ambiguous — high amounts but legitimate travel is common.
+
+================================================================
+FEATURE: is_weekend
+================================================================
+
+WHAT IT IS:
+Binary flag — 1 if the transaction occurred on Saturday or Sunday, else 0.
+Derived from day_of_week in Phase 2.
+
+WHY IT MATTERS:
+Weekend spending patterns differ from weekday. Some fraud patterns
+cluster on weekends when monitoring teams are at reduced capacity.
+
+================================================================
+INTERPRETING A SHAP WATERFALL PLOT FOR AN OPS AGENT
+================================================================
+
+When the Streamlit app shows a SHAP waterfall chart, each bar represents
+one feature's contribution to the fraud score.
+
+RED BARS (positive SHAP values) = pushing TOWARD fraud
+BLUE BARS (negative SHAP values) = pushing TOWARD legitimate
+
+HOW TO READ IT AS AN ANALYST:
+"This transaction was scored 87% fraud probability.
+The top contributors were:
+- geo_distance_km = 840km (RED, strong) — the merchant is 840km from the
+  cardholder's home, which is far outside normal spending range
+- hour_of_day = 2am (RED, moderate) — this is peak automated fraud hours
+- category = shopping_net (RED, moderate) — online retail is highest fraud category
+- log_amt = $1,240 (RED, small) — amount is elevated above cardholder average
+
+These three signals together match the Card-Not-Present pattern:
+large online purchase, distant merchant, middle of the night."
+
+This is the kind of context an analyst needs to make a fast, confident
+decision when opening a Jira ticket — not just a score.

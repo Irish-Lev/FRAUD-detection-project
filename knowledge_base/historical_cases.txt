@@ -1,0 +1,189 @@
+HISTORICAL FRAUD CASE EXAMPLES — FROM SPARKOV DATASET PATTERNS
+Irish-Lev | Ironhack Data Science & ML Bootcamp | Barcelona 2026
+Source: Phase 1 EDA findings + Stripe fraud ops knowledge
+
+These cases are representative patterns derived from the Sparkov dataset EDA.
+They are used by the RAG system to retrieve similar examples when explaining
+why a specific transaction was flagged. The RAG system matches incoming
+transaction details to the closest pattern and explains accordingly.
+
+================================================================
+CASE TYPE 1 — CLASSIC CARD-NOT-PRESENT (CNP) FRAUD
+================================================================
+
+PROFILE:
+Category:        shopping_net (online retail)
+Amount:          $800–$2,000 (high relative to average)
+Hour:            01:00–04:00 (middle of night)
+geo_distance_km: 500–1,200km (far from home)
+velocity_24h:    2–4 (moderate — post card-test)
+is_night:        1
+
+FRAUD CONFIRMED — Pattern match: Card-Not-Present
+
+EXPLANATION FOR OPS AGENT:
+This transaction profile matches classic CNP fraud — a large online
+purchase made in the middle of the night at a merchant located far from
+the cardholder's home. The shopping_net category confirms card-not-present:
+no physical card verification occurred. The distance of 500–1,200km from
+the registered home address means the fraudster is operating remotely.
+Recommend: call cardholder to verify, check if other recent transactions
+exist on this card in a different city.
+
+================================================================
+CASE TYPE 2 — CARD-TESTING FOLLOWED BY LARGE PURCHASE
+================================================================
+
+PROFILE (card-testing phase):
+Category:        gas_transport or grocery_pos
+Amount:          $1.50–$9.99 (very small)
+Hour:            any — often automated
+geo_distance_km: low (fraudster may test at nearby merchant)
+velocity_24h:    8–15 (very high — automated testing)
+
+PROFILE (exploitation phase, same card):
+Category:        shopping_net or misc_net
+Amount:          $500–$3,000
+Hour:            00:00–05:00
+geo_distance_km: high (fraudster now using remotely)
+
+FRAUD CONFIRMED — Pattern match: Card-Testing then Exploit
+
+EXPLANATION FOR OPS AGENT:
+The card shows a burst of small transactions at gas or grocery merchants
+(typical card-testing behaviour) followed by a large online purchase.
+The velocity_24h is elevated from the testing phase. This is automated
+card verification — the fraudster ran a script to check the card was live,
+then immediately used it for a high-value purchase. Recommend: block card,
+check the full 24-hour transaction history, report to card network.
+
+================================================================
+CASE TYPE 3 — ACCOUNT TAKEOVER (ATO)
+================================================================
+
+PROFILE:
+Category:        shopping_net, entertainment, or misc_net
+Amount:          $300–$2,000 (large relative to cardholder history)
+Hour:            22:00–04:00 (while cardholder is asleep)
+geo_distance_km: 300–800km (fraudster in different city)
+velocity_24h:    3–8 (fraudster buys multiple items quickly)
+is_night:        1
+
+FRAUD CONFIRMED — Pattern match: Account Takeover
+
+EXPLANATION FOR OPS AGENT:
+The cardholder's account is making purchases at a merchant located
+hundreds of kilometres from their registered home, in the middle of the
+night, with several transactions in quick succession. This is a strong
+account takeover pattern — the cardholder's credentials were likely
+compromised, and a fraudster in a different city is making purchases
+before the cardholder wakes up and notices. Recommend: immediate card
+block, call cardholder, initiate ATO review process.
+
+================================================================
+CASE TYPE 4 — GEOGRAPHIC ANOMALY (IMPOSSIBLE TRAVEL)
+================================================================
+
+PROFILE:
+Category:        any
+Amount:          any
+Hour:            any
+geo_distance_km: 800km+ (extreme distance from home)
+Previous transaction: close to home within past 2–6 hours
+
+FRAUD CONFIRMED — Pattern match: Geographic Anomaly
+
+EXPLANATION FOR OPS AGENT:
+The transaction is occurring at a merchant more than 800km from the
+cardholder's registered home address. Combined with a recent transaction
+near home, this represents an impossible travel scenario — the cardholder
+cannot physically be in both locations. Either the card is being used by
+a fraudster in a distant location simultaneously, or the cardholder has
+recently moved without updating their address. Recommend: contact
+cardholder immediately to verify location.
+
+================================================================
+CASE TYPE 5 — STRUCTURING (AMOUNT SPLITTING)
+================================================================
+
+PROFILE:
+Category:        same category repeated
+Amount:          $95–$99 or $195–$199 (just below round thresholds)
+Hour:            any
+geo_distance_km: low to moderate
+velocity_24h:    5–12 (elevated but not extreme)
+
+FRAUD CONFIRMED — Pattern match: Structuring
+
+EXPLANATION FOR OPS AGENT:
+Multiple transactions with amounts just below common alert thresholds
+($100, $200) suggest structuring — the fraudster has learned which
+amounts trigger enhanced scrutiny and is deliberately transacting below
+them. The elevated velocity combined with suspiciously similar amounts
+is the key signal. This pattern is harder to catch than obvious CNP
+fraud and may require escalation to the AML team if a pattern persists.
+
+================================================================
+CASE TYPE 6 — FALSE POSITIVE: LEGITIMATE TRAVEL
+================================================================
+
+PROFILE:
+Category:        travel
+Amount:          $400–$1,500 (high but expected for travel)
+Hour:            business hours (08:00–20:00)
+geo_distance_km: 400–2,000km (high — cardholder is travelling)
+velocity_24h:    1–3 (normal)
+
+OUTCOME: LEGITIMATE — False positive risk
+
+EXPLANATION FOR OPS AGENT:
+Although the geo_distance is high and the amount is elevated, the
+merchant category is "travel" which is expected to show high distances
+and amounts. The transaction occurred during business hours with normal
+velocity. This profile matches a cardholder who is travelling — booking
+a hotel or flight from a location far from home is completely expected
+behaviour. Recommend: clear the transaction unless other signals present.
+The model may have a higher false positive rate on travel — threshold
+should be adjusted upward for travel category.
+
+================================================================
+CASE TYPE 7 — FALSE POSITIVE: HOLIDAY SPENDING SPIKE
+================================================================
+
+PROFILE:
+Category:        shopping_pos or shopping_net
+Amount:          elevated relative to monthly average
+Hour:            daytime
+geo_distance_km: low (near home)
+velocity_24h:    4–7 (higher than usual but cardholder is shopping)
+Date:            late December or early January
+
+OUTCOME: LEGITIMATE — Seasonal spike
+
+EXPLANATION FOR OPS AGENT:
+Elevated velocity and amount during holiday season (Christmas, New Year)
+are expected. Cardholders make more purchases than usual during this
+period. The low geo_distance (near home or local mall) and daytime hours
+reduce the fraud risk significantly. The model may generate more false
+positives in December-January due to spending pattern changes.
+Recommend: clear unless other red flags are present.
+
+================================================================
+HOW TO USE THESE CASES IN THE OPS WORKFLOW
+================================================================
+
+When the RAG system retrieves one of these case types, it means the
+incoming flagged transaction closely matches the pattern described.
+
+ANALYST ACTION FLOW:
+1. Read the fraud score and case type returned by RAG
+2. Check the SHAP waterfall for the specific feature values
+3. Match against the case profile above
+4. Use the "EXPLANATION FOR OPS AGENT" text as the basis for your
+   call script when contacting the cardholder
+5. Log your decision (confirmed fraud / false positive) in the system
+   so the model can learn from real outcomes
+
+The combination of XGBoost score + SHAP explanation + RAG case match
+should allow an experienced ops agent to make a decision in 3–4 minutes
+versus the 8–12 minutes typically required without AI assistance.

@@ -1,0 +1,154 @@
+KNOWN FRAUD PATTERNS — PAYMENT CARD FRAUD
+Irish-Lev | Based on Sparkov EDA findings + Stripe fraud ops experience
+Source: Phase 1 EDA + domain knowledge
+
+================================================================
+PATTERN 1 — CARD-NOT-PRESENT (CNP) FRAUD
+================================================================
+
+DEFINITION:
+Online purchases made with stolen card details without the physical card.
+The merchant cannot verify the card is present — only the card number,
+expiry, and CVV are required, all of which can be stolen digitally.
+
+SIGNALS IN THE SPARKOV DATASET:
+- category = shopping_net or misc_net (highest fraud rates in EDA)
+- geo_distance_km: often high — fraudster may be anywhere in the world
+- hour_of_day: elevated during 00:00–04:00 (fraudsters automate scripts)
+- amt: often above average — CNP fraud targets higher-value purchases
+- velocity_24h: can be moderate — fraudster may test then buy
+
+REAL-WORLD CONTEXT (Stripe):
+CNP fraud is the dominant fraud type at online payment platforms like Stripe.
+When card networks shifted to chip-and-PIN for in-person transactions,
+fraudsters migrated online. "Shopping_net" and "misc_net" categories in
+the Sparkov dataset directly correspond to this CNP risk profile.
+
+HOW THE MODEL CATCHES IT:
+XGBoost + FinBERT embeddings of merchant name + category text.
+FinBERT encodes semantic signals from merchant names — "fraud_Rippin Kub"
+patterns in Sparkov correspond to the kind of suspicious merchant strings
+that flag in real payment processing pipelines.
+
+================================================================
+PATTERN 2 — CARD-TESTING FRAUD
+================================================================
+
+DEFINITION:
+Fraudster makes many small transactions to verify a stolen card is active
+before attempting large purchases. Often fully automated.
+
+SIGNALS IN THE SPARKOV DATASET:
+- velocity_24h: HIGH (5+ transactions in 24 hours — engineered in Phase 2)
+- amt: very small (under $5-10 per transaction)
+- category: often gas_transport or grocery_pos (small expected amounts)
+- hour_of_day: often overnight — automated scripts run 24/7
+- geo_distance_km: variable — fraudster may test near their location first
+
+REAL-WORLD CONTEXT (Stripe):
+Card-testing is extremely common. Fraudsters buy or steal card lists in
+bulk, then run automated scripts against merchant APIs to check which
+cards are live. Gas stations and grocery stores are prime targets because
+small amounts do not trigger alerts and are easy to explain.
+
+HOW THE MODEL CATCHES IT:
+velocity_24h is a key engineered feature from Phase 2.
+High velocity + small amount + gas or grocery category = card-testing signal.
+SHAP will show velocity_24h as a top feature for these cases.
+
+================================================================
+PATTERN 3 — ACCOUNT TAKEOVER (ATO)
+================================================================
+
+DEFINITION:
+Fraudster accesses a legitimate cardholder's account and makes purchases.
+The card itself is valid; the fraudster has stolen login credentials.
+
+SIGNALS IN THE SPARKOV DATASET:
+- geo_distance_km: VERY HIGH — fraudster is in a different location
+  than the cardholder's registered home address
+- hour_of_day: often odd hours — cardholder is asleep
+- category: different from the cardholder's normal spending pattern
+- amt: can be high — fraudster wants maximum value before card is blocked
+- is_night: often 1 (overnight transactions)
+
+REAL-WORLD CONTEXT (Stripe):
+Account takeover is particularly damaging because the card is legitimate.
+The signal is the behavioral anomaly — the account suddenly behaves like
+a different person. Geographic distance is the strongest single signal.
+
+HOW THE MODEL CATCHES IT:
+geo_distance_km (haversine distance between cardholder home and merchant)
+engineered in Phase 2 is expected to be the top or second SHAP feature.
+A card registered in Barcelona suddenly used at a merchant in New York
+(high geo_distance) at 3am (is_night) is a near-certain ATO pattern.
+
+================================================================
+PATTERN 4 — GEOGRAPHIC ANOMALY (IMPOSSIBLE TRAVEL)
+================================================================
+
+DEFINITION:
+Card used in two geographically distant locations within a short time window,
+making the travel physically impossible. Strong indicator of card duplication
+or simultaneous use by fraudster and cardholder.
+
+SIGNALS IN THE SPARKOV DATASET:
+- geo_distance_km: EXTREME (500km+ from registered home address)
+- This is the most direct signal for this pattern type
+
+REAL-WORLD CONTEXT:
+If a card is used in Barcelona at 14:00 and then at a merchant 800km away
+at 16:00, that is physically impossible — the cardholder cannot have
+travelled that distance in 2 hours. This triggers immediate block at Stripe.
+
+HOW THE MODEL CATCHES IT:
+geo_distance_km > 500 is a strong fraud signal that SHAP will surface.
+The EDA found geographic patterns in state-level fraud rates, confirming
+that location matters significantly in this dataset.
+
+================================================================
+PATTERN 5 — STRUCTURING / AMOUNT SPLITTING
+================================================================
+
+DEFINITION:
+Multiple transactions just below reporting or alert thresholds to avoid
+detection. Designed to look like normal spending behaviour.
+
+SIGNALS IN THE SPARKOV DATASET:
+- velocity_24h: ELEVATED (multiple transactions close together)
+- amt: repeated similar amounts just below round numbers ($99, $199, $499)
+- category: often the same category repeatedly
+
+REAL-WORLD CONTEXT:
+Structuring is well-known in AML (anti-money laundering) contexts but
+also appears in card fraud. Fraudsters have learned which amount thresholds
+trigger enhanced scrutiny and deliberately transact below them.
+
+HOW THE MODEL CATCHES IT:
+Combination of velocity_24h + amount pattern. The autoencoder anomaly
+detector (Tier 1 enhancement) is particularly well-suited to detecting
+this pattern because it deviates from the normal distribution in a subtle
+way that XGBoost alone may miss.
+
+================================================================
+PATTERN 6 — FALSE POSITIVE EXAMPLES (LEGITIMATE HIGH-RISK TRANSACTIONS)
+================================================================
+
+NOT ALL HIGH-SCORE TRANSACTIONS ARE FRAUD. Understanding false positives
+is as important as detecting fraud — false positives hurt merchants and
+degrade cardholder trust.
+
+COMMON LEGITIMATE HIGH-RISK PATTERNS:
+- Travel purchases: high amount + distant merchant = legitimate if category = travel
+  A cardholder booking a hotel 1000km away is expected behaviour for travel category
+- Business expenses: large amounts in entertainment or dining categories
+- Holiday spending: velocity spikes around Christmas and New Year are legitimate
+- Relocation: geo_distance_km suddenly increases when cardholder moves home
+
+THRESHOLD TUNING IMPLICATION:
+These patterns are why adaptive threshold tuning (Tier 1 enhancement)
+is critical. A single global threshold of 0.5 will catch fraud but also
+block legitimate transactions, costing the merchant money and trust.
+
+The travel category specifically requires a higher fraud threshold —
+the EDA showed travel has variable fraud rates but high legitimate amounts.
