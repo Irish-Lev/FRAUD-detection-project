@@ -488,7 +488,7 @@ with tab3:
 
 - **GitHub repo** ✅ — clean phased commits with README and documented notebooks
 
-- **Streamlit Cloud deployment** ⬜ — public URL for the live demo (in progress)
+- **Streamlit Cloud deployment** ✅ — public URL for the live demo
 """)
 
     with col3:
@@ -527,8 +527,8 @@ with tab3:
             "This Streamlit app (4 tabs)"
         ],
         "Status": [
-            "✅", "✅", "✅", "⬜", "✅", "✅",
-            "✅", "✅ / ⬜", "⬜", "✅", "✅", "✅"
+            "✅", "✅", "✅", "✅", "✅", "✅",
+            "✅", "✅", "✅", "✅", "✅", "✅"
         ]
     })
     st.dataframe(reqs, use_container_width=True, hide_index=True)
