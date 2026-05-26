@@ -90,8 +90,7 @@ fraud-detection-project/
 │   ├── fraud_patterns.txt
 │   ├── feature_explanations.txt
 │   └── historical_cases.txt
-├── prompts/                          # Claude Code prompt files
-└── src/                              # Reusable Python modules
+└── prompts/                          # Claude Code prompt files
 ```
 
 ---
@@ -101,11 +100,11 @@ All three models evaluated on the same held-out test set. PR-AUC is the primary 
 
 | Model | PR-AUC | ROC-AUC | F1 (fraud class) | Explainable |
 |-------|--------|---------|------------------|-------------|
-| Logistic Regression (baseline) | 0.2273 | 0.8997 | 0.1266 | Yes (coefficients) |
-| XGBoost + FinBERT (primary) | **0.8263** | **0.9941** | 0.0733 | Yes (SHAP) |
-| 1D CNN (deep learning) | 0.7150 | 0.9840 | 0.3818 | Limited |
+| Logistic Regression (baseline) | 0.2387 | 0.9023 | 0.0790 | Yes (coefficients) |
+| XGBoost + FinBERT (primary) | **0.8462** | **0.9966** | 0.1738 | Yes (SHAP) |
+| 1D CNN (deep learning) | 0.7588 | 0.9836 | 0.5114 | Limited |
 
-> XGBoost's low F1 at 0.5 threshold reflects aggressive recall (99.5%) over precision — expected behaviour on 0.58% imbalance. PR-AUC of 0.83 confirms it is the strongest model across all operating thresholds.
+> XGBoost's low F1 at 0.5 threshold reflects aggressive recall (98.9%) over precision — expected behaviour on 0.58% imbalance. PR-AUC of 0.85 confirms it is the strongest model across all operating thresholds.
 
 ---
 
@@ -136,7 +135,7 @@ kaggle datasets download -d kartik2112/fraud-detection -p data/raw --unzip
 
 # 4. Run notebooks in order
 jupyter notebook notebooks/
-# Order: 01 → 02 → 03 (Colab) → 04 → 04b → 06
+# Order: 01 → 02 → 03 (Colab) → 04 → 04b (Colab) → 06
 
 # 5. Run Streamlit app
 streamlit run app/app.py

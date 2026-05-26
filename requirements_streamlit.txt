@@ -1,0 +1,19 @@
+# Streamlit Cloud requirements — app/app.py only
+# Excludes TensorFlow, PyTorch, LangChain (not used by the app)
+# Use this file when deploying: rename to requirements.txt before pushing
+
+# Core data
+pandas>=2.0.0
+numpy>=2.0.0
+
+# Machine Learning (XGBoost + SHAP)
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+shap>=0.45.0
+
+# Visualisation
+matplotlib>=3.8.0
+plotly>=5.0.0
+
+# Streamlit
+streamlit>=1.35.0
