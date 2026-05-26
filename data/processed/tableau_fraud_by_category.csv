@@ -1,0 +1,15 @@
+Merchant Category,Fraud Rate (%),Fraud Transactions,Total Transactions
+shopping_net,1.76,1713,97543
+misc_net,1.45,915,63287
+grocery_pos,1.41,1743,123638
+shopping_pos,0.72,843,116672
+gas_transport,0.47,618,131659
+misc_pos,0.31,250,79655
+travel,0.29,116,40507
+grocery_net,0.29,134,45452
+entertainment,0.25,233,94014
+personal_care,0.24,220,90758
+kids_pets,0.21,239,113035
+food_dining,0.17,151,91461
+home,0.16,198,123115
+health_fitness,0.15,133,85879
