@@ -57,3 +57,4 @@ CLAUDE.md
 prompts/
 pipeline_trace.py
 *.pdf
+frontend_slides_main/
