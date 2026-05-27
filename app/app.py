@@ -48,6 +48,30 @@ CATEGORIES = sorted([
 # Alphabetical label encoding — matches notebook 02 LabelEncoder order
 CATEGORY_ENCODING = {cat: i for i, cat in enumerate(CATEGORIES)}
 
+# Representative merchants per category — used for the Fraud Checker dropdown
+# (merchant name is display-only; the model uses category_encoded, not the name)
+MERCHANTS_BY_CAT = {
+    'entertainment':  ['AMC Theatres', 'Regal Cinemas', 'Live Nation Events', 'Spotify Premium'],
+    'food_dining':    ["McDonald's", 'Chipotle Mexican Grill', 'Starbucks Coffee', 'Olive Garden'],
+    'gas_transport':  ['Shell Gas Station', 'BP Petroleum', 'Exxon Mobil', 'Circle K'],
+    'grocery_net':    ['Amazon Fresh (online)', 'Instacart Delivery', 'FreshDirect', 'Peapod Online'],
+    'grocery_pos':    ['Walmart Grocery', 'Kroger Supermarket', 'Whole Foods Market', "Trader Joe's"],
+    'health_fitness': ['CVS Pharmacy', 'Planet Fitness', 'Walgreens', 'GNC Nutrition'],
+    'home':           ['Home Depot', "Lowe's Home Improvement", 'IKEA', 'Bed Bath & Beyond'],
+    'kids_pets':      ['PetSmart', 'Petco Animal Supplies', "Carter's Children's Clothing", 'Learning Express'],
+    'misc_net':       ['Etsy (online)', 'eBay Marketplace', 'Wish.com', 'AliExpress Online'],
+    'misc_pos':       ['Dollar General', 'Five Below', 'Dollar Tree', 'Big Lots'],
+    'personal_care':  ['Ulta Beauty', 'Sephora', 'Great Clips Salon', 'Supercuts'],
+    'shopping_net':   ['Amazon.com', 'Zappos Shoes Online', 'ASOS Fashion Online', 'Wayfair Furniture'],
+    'shopping_pos':   ["Macy's Department Store", 'TJ Maxx', 'Ross Dress for Less', 'Nordstrom'],
+    'travel':         ['Delta Airlines', 'Marriott Hotels', 'Airbnb Rental', 'Expedia Travel'],
+}
+# Flat list sorted by merchant name: [(name, category), ...]
+MERCHANT_OPTIONS = sorted(
+    [(name, cat) for cat, names in MERCHANTS_BY_CAT.items() for name in names],
+    key=lambda x: x[0]
+)
+
 # Human-readable labels for SHAP feature names
 FEATURE_LABELS = {
     'amt':             'Transaction amount ($)',
@@ -271,11 +295,22 @@ with tab1:
 
         amt      = st.number_input("Transaction Amount ($)", min_value=0.0,
                                    max_value=10000.0, value=250.0, step=10.0)
-        merchant = st.text_input("Merchant Name",
-                                 value="Hartmann's Fresh Market",
-                                 help="Free text — used for display only")
+        # Default selection: first shopping_net merchant in the sorted list
+        _default_idx = next(
+            (i for i, (_, c) in enumerate(MERCHANT_OPTIONS) if c == 'shopping_net'), 0
+        )
+        merchant_idx = st.selectbox(
+            "Merchant Name",
+            options=range(len(MERCHANT_OPTIONS)),
+            index=_default_idx,
+            format_func=lambda i: f"{MERCHANT_OPTIONS[i][0]}  ({MERCHANT_OPTIONS[i][1]})",
+            help="Select a merchant — category auto-fills below",
+        )
+        merchant = MERCHANT_OPTIONS[merchant_idx][0]
+        # Category defaults to the selected merchant's category; can still be overridden
+        _auto_cat = MERCHANT_OPTIONS[merchant_idx][1]
         category = st.selectbox("Merchant Category", CATEGORIES,
-                                index=CATEGORIES.index('shopping_net'))
+                                index=CATEGORIES.index(_auto_cat))
         hour     = st.slider("Hour of Day", 0, 23, value=14,
                              help="0 = midnight · 14 = 2pm · 23 = 11pm")
         geo_dist = st.number_input("Distance from Home (km)", min_value=0.0,
