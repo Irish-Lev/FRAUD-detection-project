@@ -233,9 +233,19 @@ def generate_explanation(shap_vals, feature_names, input_df, fraud_prob):
               f"and is likely legitimate based on the available signals.")
 
     # Sentence 2 — top driver in plain English
+    amt_val = float(input_df['amt'].iloc[0])
+    if amt_val < 25:
+        _amt_desc = (f"the micro-transaction (${amt_val:,.0f}) matches card-testing behaviour "
+                     f"— fraudsters verify stolen cards with small amounts, often late at night")
+    elif amt_val > 400:
+        _amt_desc = f"the transaction amount of ${amt_val:,.0f} is unusually large for this merchant category"
+    else:
+        _amt_desc = (f"the transaction amount of ${amt_val:,.0f} combined with the timing "
+                     f"and location creates a suspicious pattern")
+
     driver_map = {
-        'amt':             f"the transaction amount of ${input_df['amt'].iloc[0]:,.0f} is unusually high for this merchant category",
-        'log_amt':         f"the transaction amount of ${input_df['amt'].iloc[0]:,.0f} is unusually high for this merchant category",
+        'amt':             _amt_desc,
+        'log_amt':         _amt_desc,
         'geo_distance_km': f"the merchant is {input_df['geo_distance_km'].iloc[0]:.0f} km from the cardholder's home — a geographic velocity flag",
         'is_night':        "the transaction occurred late at night (midnight–6am) when fraud rates spike significantly",
         'hour_of_day':     f"the transaction time (hour {int(input_df['hour_of_day'].iloc[0])}:00) falls in a high-risk window",
