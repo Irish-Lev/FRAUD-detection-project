@@ -58,3 +58,4 @@ prompts/
 pipeline_trace.py
 *.pdf
 frontend_slides_main/
+presentation/presenter_script.md

@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fraud Detection ML System — Irish-Lev · Ironhack Barcelona 2026</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* =====================================================
+       CSS CUSTOM PROPERTIES — NEON CYBER PRESET
+       ===================================================== */
+    :root {
+      --bg-primary:    #040d1a;
+      --bg-secondary:  #071428;
+      --accent:        #00ffcc;
+      --accent-2:      #3b82f6;
+      --accent-3:      #f59e0b;
+      --accent-danger: #ef4444;
+      --text-primary:  #f0fdf4;
+      --text-secondary:#94a3b8;
+
+      --accent-glow:   rgba(0, 255, 204, 0.25);
+      --accent-2-glow: rgba(59, 130, 246, 0.22);
+
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'Space Grotesk', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+
+      --title-size:    clamp(1.8rem, 4.5vw, 4rem);
+      --h2-size:       clamp(1.1rem, 2.2vw, 1.9rem);
+      --h3-size:       clamp(0.88rem, 1.5vw, 1.25rem);
+      --body-size:     clamp(0.68rem, 1.1vw, 0.88rem);
+      --small-size:    clamp(0.58rem, 0.88vw, 0.75rem);
+
+      --slide-padding: clamp(0.9rem, 2vw, 2rem);
+      --content-gap:   clamp(0.4rem, 1.1vw, 1.1rem);
+      --element-gap:   clamp(0.25rem, 0.7vw, 0.7rem);
+
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-normal: 0.65s;
+
+      --radius-sm: 4px;
+      --radius:    8px;
+      --radius-lg: 12px;
+    }
+
+    /* =====================================================
+       BASE RESET
+       ===================================================== */
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* =====================================================
+       VIEWPORT-BASE.CSS — INLINED (MANDATORY)
+       ===================================================== */
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-height: 100%;
+      overflow: hidden;
+      padding: var(--slide-padding);
+    }
+    .card, .container, .content-box {
+      max-width: min(90vw, 1000px);
+      max-height: min(80vh, 700px);
+    }
+    .feature-list, .bullet-list {
+      gap: clamp(0.4rem, 1vh, 1rem);
+    }
+    .feature-list li, .bullet-list li {
+      font-size: var(--body-size);
+      line-height: 1.4;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+      gap: clamp(0.5rem, 1.5vw, 1rem);
+    }
+    img, .image-container {
+      max-width: 100%;
+      max-height: min(50vh, 400px);
+      object-fit: contain;
+    }
+    @media (max-height: 700px) {
+      :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap:   clamp(0.4rem, 1.5vw, 1rem);
+        --title-size:    clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size:       clamp(1rem, 3vw, 1.75rem);
+      }
+    }
+    @media (max-height: 600px) {
+      :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap:   clamp(0.3rem, 1vw, 0.75rem);
+        --title-size:    clamp(1.1rem, 4vw, 2rem);
+        --body-size:     clamp(0.7rem, 1.2vw, 0.95rem);
+      }
+      .nav-dots, .keyboard-hint, .decorative { display: none; }
+    }
+    @media (max-height: 500px) {
+      :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size:    clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size:       clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size:     clamp(0.65rem, 1vw, 0.85rem);
+      }
+    }
+    @media (max-width: 600px) {
+      :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+      }
+      html { scroll-behavior: auto; }
+    }
+
+    /* =====================================================
+       GRID BACKGROUND — NEON CYBER SIGNATURE
+       ===================================================== */
+    .slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .slide > * { position: relative; z-index: 1; }
+
+    /* =====================================================
+       PROGRESS BAR
+       ===================================================== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 8px var(--accent-glow);
+      z-index: 1000;
+      transition: width 0.35s var(--ease-out-expo);
+    }
+
+    /* =====================================================
+       NAV DOTS
+       ===================================================== */
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.6rem, 1.5vw, 1.2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(5px, 0.9vh, 10px);
+      z-index: 1000;
+    }
+    .nav-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(148, 163, 184, 0.3);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .nav-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent-glow);
+      border-color: var(--accent);
+    }
+    .nav-dot:hover { background: var(--text-secondary); }
+
+    /* =====================================================
+       ANIMATIONS — TECHY / FUTURISTIC
+       ===================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      will-change: opacity, transform;
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform var(--duration-normal) var(--ease-out-expo);
+    }
+    .slide.visible .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal:nth-child(1) { transition-delay: 0.05s; }
+    .reveal:nth-child(2) { transition-delay: 0.18s; }
+    .reveal:nth-child(3) { transition-delay: 0.31s; }
+    .reveal:nth-child(4) { transition-delay: 0.44s; }
+    .reveal:nth-child(5) { transition-delay: 0.57s; }
+    .reveal:nth-child(6) { transition-delay: 0.70s; }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-28px);
+      will-change: opacity, transform;
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform var(--duration-normal) var(--ease-out-expo);
+      transition-delay: 0.15s;
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(28px);
+      will-change: opacity, transform;
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform var(--duration-normal) var(--ease-out-expo);
+      transition-delay: 0.30s;
+    }
+    .slide.visible .reveal-left,
+    .slide.visible .reveal-right {
+      opacity: 1;
+      transform: translate(0);
+    }
+
+    /* Corner glow blobs */
+    .glow-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-tl {
+      top: -8%; left: -4%;
+      width: clamp(180px, 32vw, 420px);
+      height: clamp(180px, 32vw, 420px);
+      background: radial-gradient(ellipse, rgba(0, 255, 204, 0.11) 0%, transparent 70%);
+    }
+    .glow-br {
+      bottom: -8%; right: -4%;
+      width: clamp(150px, 28vw, 380px);
+      height: clamp(150px, 28vw, 380px);
+      background: radial-gradient(ellipse, rgba(59, 130, 246, 0.11) 0%, transparent 70%);
+    }
+
+    /* =====================================================
+       SHAP BAR ANIMATION
+       ===================================================== */
+    .shap-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 3px;
+      box-shadow: 0 0 6px rgba(0, 255, 204, 0.28);
+      transition: width 1.1s var(--ease-out-expo);
+    }
+    .slide.visible .shap-bar-fill { width: var(--bar-width); }
+    .shap-row:nth-child(1) .shap-bar-fill { transition-delay: 0.3s; }
+    .shap-row:nth-child(2) .shap-bar-fill { transition-delay: 0.5s; }
+    .shap-row:nth-child(3) .shap-bar-fill { transition-delay: 0.7s; }
+    .shap-row:nth-child(4) .shap-bar-fill { transition-delay: 0.9s; }
+
+    /* =====================================================
+       TYPOGRAPHY
+       ===================================================== */
+    h1 {
+      font-family: var(--font-display);
+      font-size: var(--title-size);
+      font-weight: 800;
+      line-height: 1.0;
+      color: var(--text-primary);
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: var(--h2-size);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text-primary);
+    }
+    h3 {
+      font-family: var(--font-body);
+      font-size: var(--h3-size);
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    p, li {
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .accent       { color: var(--accent); }
+    .accent-2     { color: var(--accent-2); }
+    .accent-3     { color: var(--accent-3); }
+    .accent-danger{ color: var(--accent-danger); }
+
+    /* =====================================================
+       CHIPS / BADGES
+       ===================================================== */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      padding: clamp(3px, 0.5vh, 6px) clamp(7px, 1.1vw, 13px);
+      border-radius: var(--radius-sm);
+      background: rgba(0, 255, 204, 0.07);
+      border: 1px solid rgba(0, 255, 204, 0.2);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .chip-blue   { background: rgba(59,130,246,0.07); border-color: rgba(59,130,246,0.2); color: var(--accent-2); }
+    .chip-amber  { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.2); color: var(--accent-3); }
+    .chip-muted  { background: rgba(148,163,184,0.07); border-color: rgba(148,163,184,0.18); color: var(--text-secondary); }
+
+    /* Slide position label (top-right) */
+    .slide-label {
+      position: absolute;
+      top: clamp(0.7rem, 1.8vh, 1.4rem);
+      right: clamp(2.8rem, 5vw, 5.5rem);
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: rgba(148,163,184,0.35);
+      z-index: 10;
+    }
+    .slide-label span { color: rgba(0,255,204,0.4); }
+
+    /* Large BG number */
+    .bg-num {
+      position: absolute;
+      top: clamp(0.5rem, 1.5vh, 1rem);
+      left: clamp(0.6rem, 1.5vw, 1.2rem);
+      font-family: var(--font-mono);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 700;
+      color: rgba(0,255,204,0.04);
+      line-height: 1;
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+    }
+
+    /* Accent line divider */
+    .accent-line {
+      width: clamp(28px, 4.5vw, 52px);
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      border-radius: 2px;
+      margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
+    }
+
+    /* Slide header */
+    .slide-header { margin-bottom: clamp(0.35rem, 1vh, 0.9rem); }
+    .slide-header .subtitle {
+      font-size: var(--body-size);
+      color: var(--text-secondary);
+      margin-top: clamp(2px, 0.4vh, 4px);
+    }
+
+    /* Pull quote */
+    .pull-quote {
+      border-left: 3px solid var(--accent);
+      padding: clamp(0.45rem, 1.2vh, 0.9rem) clamp(0.7rem, 1.8vw, 1.4rem);
+      background: rgba(0, 255, 204, 0.04);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-style: italic;
+      color: var(--text-primary);
+      font-size: var(--body-size);
+      line-height: 1.55;
+    }
+
+    /* Closing note */
+    .closing-note {
+      background: rgba(0,255,204,0.04);
+      border: 1px solid rgba(0,255,204,0.14);
+      border-radius: var(--radius);
+      padding: clamp(0.55rem, 1.3vw, 1.1rem) clamp(0.7rem, 1.8vw, 1.4rem);
+      font-size: var(--body-size);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* =====================================================
+       STAT CARD
+       ===================================================== */
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(0,255,204,0.11);
+      border-radius: var(--radius-lg);
+      padding: clamp(0.55rem, 1.2vw, 1rem);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    .stat-card .stat-value {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2.4vw, 2rem);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: clamp(2px, 0.4vh, 5px);
+    }
+    .stat-card .stat-label {
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: clamp(2px, 0.4vh, 5px);
+    }
+    .stat-card .stat-desc {
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* =====================================================
+       ARCHITECTURE PIPELINE
+       ===================================================== */
+    .pipeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+    }
+    .pipeline-step {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(0,255,204,0.09);
+      border-radius: var(--radius);
+      padding: clamp(0.45rem, 1vw, 0.85rem) clamp(0.28rem, 0.7vw, 0.55rem);
+      text-align: center;
+    }
+    .pipeline-step.hi-primary {
+      border-color: rgba(0,255,204,0.38);
+      background: rgba(0,255,204,0.05);
+      box-shadow: 0 0 14px rgba(0,255,204,0.09);
+    }
+    .pipeline-step.hi-gen {
+      border-color: rgba(59,130,246,0.38);
+      background: rgba(59,130,246,0.05);
+      box-shadow: 0 0 14px rgba(59,130,246,0.09);
+    }
+    .pipeline-arrow {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      color: rgba(0,255,204,0.3);
+      font-size: clamp(0.7rem, 1.3vw, 1rem);
+      padding: 0 2px;
+    }
+    .step-num {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--accent);
+      margin-bottom: 3px;
+    }
+    .step-name {
+      display: block;
+      font-family: var(--font-display);
+      font-size: clamp(0.65rem, 1.1vw, 0.88rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    .step-desc {
+      display: block;
+      font-size: clamp(0.5rem, 0.82vw, 0.68rem);
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+    .done-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: clamp(0.45rem, 0.75vw, 0.6rem);
+      color: var(--accent);
+      background: rgba(0,255,204,0.09);
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-top: 4px;
+    }
+    .done-badge.blue {
+      color: var(--accent-2);
+      background: rgba(59,130,246,0.09);
+      border-color: rgba(59,130,246,0.2);
+    }
+    .pipe-legend {
+      display: flex;
+      gap: clamp(0.6rem, 2vw, 1.5rem);
+      margin-top: clamp(0.5rem, 1.5vh, 1.2rem);
+    }
+    .pipe-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+    }
+    .pipe-legend-dot {
+      width: 11px; height: 3px;
+      border-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* =====================================================
+       TWO-COLUMN LAYOUT
+       ===================================================== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.8rem, 2.2vw, 2rem);
+      align-items: start;
+    }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+    .col-panel {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(148,163,184,0.09);
+      border-radius: var(--radius-lg);
+      padding: clamp(0.55rem, 1.2vw, 1rem);
+    }
+    .col-panel-title {
+      font-family: var(--font-display);
+      font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+      font-weight: 700;
+      margin-bottom: clamp(0.3rem, 0.8vh, 0.65rem);
+      padding-bottom: clamp(0.22rem, 0.55vh, 0.42rem);
+      border-bottom: 1px solid rgba(0,255,204,0.13);
+    }
+
+    /* =====================================================
+       MODEL CARDS
+       ===================================================== */
+    .model-card {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(148,163,184,0.09);
+      border-radius: var(--radius-lg);
+      padding: clamp(0.55rem, 1.2vw, 0.95rem);
+      position: relative;
+      overflow: hidden;
+    }
+    .model-card.primary {
+      border-color: rgba(0,255,204,0.33);
+      background: rgba(0,255,204,0.035);
+      box-shadow: 0 0 18px rgba(0,255,204,0.07);
+    }
+    .model-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .model-card.baseline::before { background: rgba(148,163,184,0.38); }
+    .model-card.primary::before  { background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .model-card.deep::before     { background: var(--accent-2); }
+
+    .role-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-bottom: clamp(5px, 0.9vh, 9px);
+    }
+    .role-badge.bl  { background: rgba(148,163,184,0.13); color: var(--text-secondary); }
+    .role-badge.pr  { background: rgba(0,255,204,0.1);    color: var(--accent); }
+    .role-badge.dl  { background: rgba(59,130,246,0.1);   color: var(--accent-2); }
+
+    .model-name {
+      font-family: var(--font-display);
+      font-size: clamp(0.82rem, 1.5vw, 1.1rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: clamp(4px, 0.7vh, 7px);
+    }
+    .model-desc {
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+      margin-bottom: clamp(5px, 1vh, 9px);
+      line-height: 1.4;
+    }
+    .model-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    /* =====================================================
+       EDA BULLETS
+       ===================================================== */
+    .eda-bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(7px, 1vw, 11px);
+      padding: clamp(0.35rem, 0.9vh, 0.65rem) 0;
+      border-bottom: 1px solid rgba(148,163,184,0.06);
+    }
+    .eda-bullet:last-child { border-bottom: none; }
+    .eda-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: clamp(5px, 0.7vh, 7px);
+    }
+    .eda-text {
+      font-size: var(--body-size);
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .eda-text strong { color: var(--text-primary); font-weight: 600; }
+
+    /* =====================================================
+       FACT LIST
+       ===================================================== */
+    .fact-list { display: flex; flex-direction: column; gap: clamp(0.35rem, 0.9vh, 0.7rem); }
+    .fact-item { display: flex; align-items: baseline; gap: clamp(5px, 0.9vw, 9px); }
+    .fact-key {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--accent);
+      flex-shrink: 0;
+      min-width: clamp(55px, 9vw, 82px);
+    }
+    .fact-val { font-size: var(--body-size); color: var(--text-secondary); }
+
+    /* =====================================================
+       SHAP BARS
+       ===================================================== */
+    .shap-bars { display: flex; flex-direction: column; gap: clamp(0.38rem, 0.9vh, 0.75rem); }
+    .shap-row  { display: flex; align-items: center; gap: clamp(5px, 1.1vw, 11px); }
+    .shap-label {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+      width: clamp(95px, 16vw, 150px);
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .shap-bar-track {
+      flex: 1;
+      height: clamp(7px, 1.3vh, 12px);
+      background: rgba(0,255,204,0.05);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .shap-value {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--accent);
+      width: clamp(32px, 3.5vw, 46px);
+      flex-shrink: 0;
+    }
+
+    /* =====================================================
+       RAG STEPS
+       ===================================================== */
+    .rag-steps { display: flex; flex-direction: column; gap: clamp(0.45rem, 1.1vh, 0.9rem); }
+    .rag-step  { display: flex; gap: clamp(7px, 1.2vw, 13px); align-items: flex-start; }
+    .rag-step-num {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--accent-2);
+      background: rgba(59,130,246,0.09);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 3px;
+      padding: 2px 7px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .rag-step-text { font-size: var(--body-size); color: var(--text-secondary); line-height: 1.45; }
+
+    /* =====================================================
+       DEMO CARDS (2×2 GRID)
+       ===================================================== */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.55rem, 1.4vw, 1.1rem);
+    }
+    .demo-card {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(148,163,184,0.09);
+      border-radius: var(--radius-lg);
+      padding: clamp(0.55rem, 1.2vw, 0.95rem);
+      display: flex;
+      gap: clamp(6px, 1vw, 9px);
+      align-items: flex-start;
+    }
+    .demo-icon { font-size: clamp(1.1rem, 2.2vw, 1.65rem); flex-shrink: 0; margin-top: 2px; }
+    .demo-card-title {
+      font-family: var(--font-display);
+      font-size: clamp(0.78rem, 1.35vw, 0.98rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .demo-card-desc { font-size: var(--small-size); color: var(--text-secondary); line-height: 1.4; }
+
+    /* =====================================================
+       COMPANY CARDS
+       ===================================================== */
+    .company-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(0.55rem, 1.4vw, 1.1rem);
+    }
+    .company-card {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(148,163,184,0.09);
+      border-radius: var(--radius-lg);
+      padding: clamp(0.55rem, 1.2vw, 0.95rem);
+      position: relative;
+      overflow: hidden;
+    }
+    .company-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .company-card:nth-child(1)::before { background: var(--accent); }
+    .company-card:nth-child(2)::before { background: var(--accent-2); }
+    .company-card:nth-child(3)::before { background: var(--accent-3); }
+    .company-name {
+      font-family: var(--font-display);
+      font-size: clamp(0.88rem, 1.55vw, 1.15rem);
+      font-weight: 800;
+      margin-bottom: clamp(4px, 0.7vh, 8px);
+    }
+    .company-card:nth-child(1) .company-name { color: var(--accent); }
+    .company-card:nth-child(2) .company-name { color: var(--accent-2); }
+    .company-card:nth-child(3) .company-name { color: var(--accent-3); }
+    .company-detail {
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: clamp(4px, 0.7vh, 8px);
+    }
+    .company-highlight {
+      font-size: var(--small-size);
+      color: var(--text-primary);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* =====================================================
+       ROADMAP COLUMNS
+       ===================================================== */
+    .roadmap-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(0.7rem, 1.8vw, 1.4rem);
+      align-items: start;
+    }
+    .roadmap-col {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: clamp(0.55rem, 1.2vw, 0.95rem);
+      border: 1px solid transparent;
+    }
+    .roadmap-col.built { border-color: rgba(0,255,204,0.18); }
+    .roadmap-col.tier1 { border-color: rgba(59,130,246,0.18); }
+    .roadmap-col.tier2 { border-color: rgba(245,158,11,0.18); }
+    .roadmap-col-title {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      font-weight: 700;
+      margin-bottom: clamp(0.45rem, 1vh, 0.9rem);
+      padding-bottom: clamp(3px, 0.7vh, 7px);
+      border-bottom: 1px solid rgba(148,163,184,0.09);
+    }
+    .roadmap-col.built .roadmap-col-title { color: var(--accent); }
+    .roadmap-col.tier1 .roadmap-col-title { color: var(--accent-2); }
+    .roadmap-col.tier2 .roadmap-col-title { color: var(--accent-3); }
+    .roadmap-item {
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+      padding: clamp(3px, 0.55vh, 5px) 0;
+      border-bottom: 1px solid rgba(148,163,184,0.045);
+      line-height: 1.4;
+    }
+    .roadmap-item:last-child { border-bottom: none; }
+
+    /* =====================================================
+       TITLE SLIDE
+       ===================================================== */
+    .title-slide {
+      background:
+        radial-gradient(ellipse at 12% 88%, rgba(0,255,204,0.07) 0%, transparent 52%),
+        radial-gradient(ellipse at 88% 12%, rgba(59,130,246,0.07) 0%, transparent 52%),
+        var(--bg-primary);
+    }
+    .title-eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: clamp(0.3rem, 0.8vh, 0.6rem);
+    }
+    .title-main {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5.5vw, 4.8rem);
+      font-weight: 800;
+      line-height: 0.96;
+      color: var(--text-primary);
+      margin-bottom: clamp(0.4rem, 1.1vh, 0.85rem);
+    }
+    .title-main .accent { color: var(--accent); }
+    .title-tagline {
+      font-family: var(--font-body);
+      font-size: clamp(0.75rem, 1.4vw, 0.98rem);
+      font-weight: 500;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin-bottom: clamp(0.6rem, 1.6vh, 1.2rem);
+      line-height: 1.45;
+    }
+    .title-chips { display: flex; flex-wrap: wrap; gap: clamp(5px, 1vw, 10px); }
+
+    /* =====================================================
+       INLINE EDITING
+       ===================================================== */
+    .edit-hotzone {
+      position: fixed;
+      top: 0; left: 0;
+      width: 80px; height: 80px;
+      z-index: 10000;
+      cursor: pointer;
+    }
+    .edit-toggle {
+      position: fixed;
+      top: clamp(0.5rem, 1.3vh, 1rem);
+      left: clamp(0.5rem, 1.3vw, 1rem);
+      background: rgba(0,255,204,0.09);
+      border: 1px solid rgba(0,255,204,0.28);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      padding: 5px 11px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10001;
+    }
+    .edit-toggle.show, .edit-toggle.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .edit-toggle.active {
+      background: rgba(0,255,204,0.18);
+      border-color: var(--accent);
+    }
+    .edit-banner {
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,255,204,0.92);
+      color: #040d1a;
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      font-weight: 700;
+      padding: 5px 18px;
+      border-radius: 0 0 8px 8px;
+      z-index: 10002;
+      display: none;
+    }
+    .edit-banner.active { display: block; }
+    body.edit-active [contenteditable] {
+      outline: 1px dashed rgba(0,255,204,0.38);
+      border-radius: 2px;
+      cursor: text;
+    }
+    body.edit-active [contenteditable]:focus {
+      outline: 2px solid var(--accent);
+      background: rgba(0,255,204,0.04);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" id="progressBar"></div>
+  <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+  <div class="edit-hotzone" id="editHotzone"></div>
+  <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏ EDIT</button>
+  <div class="edit-banner" id="editBanner">EDIT MODE — Click any text · Ctrl+S to save</div>
+
+  <!-- ============================================================
+       SLIDE 1 — TITLE
+       ============================================================ -->
+  <section class="slide title-slide" id="slide-1">
+    <div class="glow-blob glow-tl"></div>
+    <div class="glow-blob glow-br"></div>
+    <div class="slide-content">
+      <p class="title-eyebrow reveal">Ironhack Data Science &amp; ML · Barcelona 2026</p>
+      <h1 class="title-main reveal">Fraud<br><span class="accent">Detection</span><br>ML System</h1>
+      <p class="title-tagline reveal">End-to-end payment fraud classifier with explainability and GenAI</p>
+      <div class="title-chips reveal">
+        <span class="chip">1.3M transactions</span>
+        <span class="chip">0.58% fraud rate</span>
+        <span class="chip chip-blue">XGBoost + FinBERT</span>
+        <span class="chip chip-blue">SHAP + RAG</span>
+        <span class="chip chip-amber">Irish-Lev · Ironhack Barcelona</span>
+      </div>
+    </div>
+    <div class="slide-label">01 <span>/ 09</span></div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 2 — BUSINESS PROBLEM
+       ============================================================ -->
+  <section class="slide" id="slide-2">
+    <div class="glow-blob glow-br" style="background: radial-gradient(ellipse, rgba(239,68,68,0.09) 0%, transparent 70%);"></div>
+    <div class="bg-num">02</div>
+    <div class="slide-label">02 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>I worked this queue at Stripe.<br>Here is what a bad model costs.</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(0.5rem,1.4vw,1.1rem);margin-bottom:clamp(0.6rem,1.8vh,1.4rem);">
+        <div class="stat-card reveal">
+          <div class="stat-value accent-danger">0.58%</div>
+          <div class="stat-label">Fraud Rate</div>
+          <div class="stat-desc">1 in 172 transactions. Traditional accuracy hits 99.4% while catching zero fraud. On imbalanced data, accuracy is a lie.</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-value" style="color:var(--accent-3);font-size:clamp(1.2rem,2.8vw,2.4rem);">&lt; 4 min</div>
+          <div class="stat-label">&lt; 4 min agent window</div>
+          <div class="stat-desc">Fraud ops agents at Stripe triage cases in Jira and Salesforce. A score alone is useless — they need a reason to act or clear within 4 minutes.</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-value accent-2" style="font-size:clamp(1.2rem,2.3vw,2rem);">PSD2</div>
+          <div class="stat-label">EU Regulation</div>
+          <div class="stat-desc">Automated financial decisions must be explainable to the affected party.</div>
+        </div>
+      </div>
+      <div class="pull-quote reveal">
+        "At Stripe I saw what happens when a model flags without explaining — agents guess, cardholders churn, merchants dispute. This project is the tool I wished existed."
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 3 — ARCHITECTURE
+       ============================================================ -->
+  <section class="slide" id="slide-3">
+    <div class="glow-blob glow-tl"></div>
+    <div class="bg-num">03</div>
+    <div class="slide-label">03 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>6-phase end-to-end pipeline</h2>
+        <p class="subtitle">All phases complete and deployed</p>
+      </div>
+      <div class="pipeline reveal">
+        <div class="pipeline-step">
+          <span class="step-num">01</span>
+          <span class="step-name">EDA</span>
+          <span class="step-desc">Sparkov 1.3M · fraud pattern analysis · Tableau exports</span>
+          <span class="done-badge">✓ DONE</span>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <span class="step-num">02</span>
+          <span class="step-name">Features</span>
+          <span class="step-desc">46 features · time-based split · zero leakage</span>
+          <span class="done-badge">✓ DONE</span>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <span class="step-num">03</span>
+          <span class="step-name">FinBERT</span>
+          <span class="step-desc">768-dim → PCA 30 · merchant embeddings · Colab T4</span>
+          <span class="done-badge">✓ DONE</span>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step hi-primary">
+          <span class="step-num">04</span>
+          <span class="step-name">XGBoost</span>
+          <span class="step-desc">SMOTE (train only) · SHAP · default 0.5 threshold · MLflow · SQLite</span>
+          <span class="done-badge">✓ DONE</span>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <span class="step-num">05</span>
+          <span class="step-name">1D CNN</span>
+          <span class="step-desc">class_weight (not SMOTE) · default 0.5 threshold · 2×Conv1D · Keras/TF</span>
+          <span class="done-badge">✓ DONE</span>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step hi-gen">
+          <span class="step-num">06</span>
+          <span class="step-name">RAG</span>
+          <span class="step-desc">LangChain · ChromaDB · GPT-4o-mini · plain-English explanations</span>
+          <span class="done-badge blue">✓ DONE</span>
+        </div>
+      </div>
+      <div class="pipe-legend reveal">
+        <div class="pipe-legend-item">
+          <span class="pipe-legend-dot" style="background:var(--accent);"></span>
+          Phase 04 — Primary model with SHAP explainability
+        </div>
+        <div class="pipe-legend-item">
+          <span class="pipe-legend-dot" style="background:var(--accent-2);"></span>
+          Phase 06 — GenAI component (RAG analyst assistant)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 4 — DATASET + EDA
+       ============================================================ -->
+  <section class="slide" id="slide-4">
+    <div class="glow-blob glow-br"></div>
+    <div class="bg-num">04</div>
+    <div class="slide-label">04 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>What the data told us</h2>
+      </div>
+      <div class="two-col">
+        <div class="reveal-left">
+          <div class="col-panel">
+            <div class="col-panel-title accent">Dataset Facts</div>
+            <div class="fact-list">
+              <div class="fact-item">
+                <span class="fact-key">Source</span>
+                <span class="fact-val">Sparkov · Kaggle — simulated US payment transactions</span>
+              </div>
+              <div class="fact-item">
+                <span class="fact-key">Volume</span>
+                <span class="fact-val">1.3M transactions · Jan 2019 – Dec 2020</span>
+              </div>
+              <div class="fact-item">
+                <span class="fact-key">Fraud</span>
+                <span class="fact-val"><strong style="color:var(--accent-danger);">0.58%</strong> rate · 7,506 fraud cases in training set</span>
+              </div>
+              <div class="fact-item">
+                <span class="fact-key">Split</span>
+                <span class="fact-val">Time-based 80/20 — no data leakage · 1.03M train / 259K test</span>
+              </div>
+              <div class="fact-item">
+                <span class="fact-key">Columns</span>
+                <span class="fact-val">amount, merchant, category, lat/long, dob, trans_time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal-right">
+          <div class="col-panel" style="border-color:rgba(245,158,11,0.14);">
+            <div class="col-panel-title" style="color:var(--accent-3);border-bottom-color:rgba(245,158,11,0.18);">Key EDA Findings</div>
+            <div>
+              <div class="eda-bullet">
+                <div class="eda-dot"></div>
+                <div class="eda-text"><strong>0–4 am:</strong> 5× higher fraud rate than daytime — prime card-testing window</div>
+              </div>
+              <div class="eda-bullet">
+                <div class="eda-dot"></div>
+                <div class="eda-text"><strong>shopping_net:</strong> highest fraud rate by category — card-not-present transactions dominate</div>
+              </div>
+              <div class="eda-bullet">
+                <div class="eda-dot"></div>
+                <div class="eda-text"><strong>geo_distance_km:</strong> fraudulent transactions average 3× further from cardholder's home address</div>
+              </div>
+              <div class="eda-bullet">
+                <div class="eda-dot" style="background:var(--accent-3);"></div>
+                <div class="eda-text"><strong>Amount:</strong> bimodal — fraud clusters at micro ($1–$10 card-testing) <em>and</em> large ($500+)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 5 — THREE MODELS
+       ============================================================ -->
+  <section class="slide" id="slide-5">
+    <div class="glow-blob glow-tl"></div>
+    <div class="bg-num">05</div>
+    <div class="slide-label">05 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>Three approaches, one winner</h2>
+        <p class="subtitle">Same held-out test set · Primary metric: <span class="accent">PR-AUC</span> (not ROC-AUC — optimistic on 0.58% imbalance)</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(0.55rem,1.4vw,1.1rem);margin-bottom:clamp(0.5rem,1.4vh,1rem);">
+        <div class="model-card baseline reveal">
+          <span class="role-badge bl">BASELINE</span>
+          <div class="model-name">Logistic Regression</div>
+          <div class="model-desc">Linear classifier · simple reference point · no ensemble, no embeddings</div>
+          <div class="model-meta">
+            <span class="chip chip-muted">PR-AUC 0.2387</span>
+            <span class="chip chip-muted">ROC-AUC 0.9023</span>
+            <span class="chip chip-muted">Explainable ✓</span>
+          </div>
+        </div>
+        <div class="model-card primary reveal">
+          <span class="role-badge pr">PRIMARY · WINNER</span>
+          <div class="model-name">XGBoost + FinBERT</div>
+          <div class="model-desc">46 features (16 engineered + 30 FinBERT PCA embeddings) · SMOTE on train only · n_estimators=300</div>
+          <div class="model-meta">
+            <span class="chip">PR-AUC 0.8462</span>
+            <span class="chip">ROC-AUC 0.9966</span>
+            <span class="chip">SHAP ✓</span>
+          </div>
+        </div>
+        <div class="model-card deep reveal">
+          <span class="role-badge dl">DEEP LEARNING</span>
+          <div class="model-name">1D CNN (Keras)</div>
+          <div class="model-desc">2× Conv1D layers · class_weight (not SMOTE) · built from scratch in TensorFlow</div>
+          <div class="model-meta">
+            <span class="chip chip-blue">PR-AUC 0.7588</span>
+            <span class="chip chip-blue">ROC-AUC 0.9836</span>
+            <span class="chip chip-blue">Limited XAI</span>
+          </div>
+        </div>
+      </div>
+      <div class="pull-quote reveal" style="border-color:var(--accent-2);background:rgba(59,130,246,0.04);">
+        <span class="accent">XGBoost wins.</span> Tabular features have no natural spatial ordering — CNNs excel at sequential data. Under EU PSD2, <span class="accent">SHAP explainability</span> is non-negotiable. PR-AUC is the right metric because ROC-AUC inflates on imbalanced classes.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 6 — SHAP + RAG EXPLAINABILITY
+       ============================================================ -->
+  <section class="slide" id="slide-6">
+    <div class="glow-blob glow-br"></div>
+    <div class="bg-num">06</div>
+    <div class="slide-label">06 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>A score without a reason is not actionable</h2>
+      </div>
+      <div class="two-col">
+        <div class="reveal-left">
+          <div class="col-panel">
+            <div class="col-panel-title accent">SHAP — Feature Level</div>
+            <div class="shap-bars">
+              <div class="shap-row">
+                <span class="shap-label">geo_distance_km</span>
+                <div class="shap-bar-track">
+                  <div class="shap-bar-fill" style="--bar-width:86%;"></div>
+                </div>
+                <span class="shap-value">+0.43</span>
+              </div>
+              <div class="shap-row">
+                <span class="shap-label">hour_of_day</span>
+                <div class="shap-bar-track">
+                  <div class="shap-bar-fill" style="--bar-width:62%;"></div>
+                </div>
+                <span class="shap-value">+0.31</span>
+              </div>
+              <div class="shap-row">
+                <span class="shap-label">velocity_24h</span>
+                <div class="shap-bar-track">
+                  <div class="shap-bar-fill" style="--bar-width:50%;"></div>
+                </div>
+                <span class="shap-value">+0.25</span>
+              </div>
+              <div class="shap-row">
+                <span class="shap-label">category_encoded</span>
+                <div class="shap-bar-track">
+                  <div class="shap-bar-fill" style="--bar-width:36%;"></div>
+                </div>
+                <span class="shap-value">+0.18</span>
+              </div>
+            </div>
+            <p style="font-size:var(--small-size);color:var(--text-secondary);margin-top:clamp(0.45rem,1vh,0.85rem);">Every prediction auditable under EU PSD2 · Waterfall chart in Streamlit app</p>
+          </div>
+        </div>
+        <div class="reveal-right">
+          <div class="col-panel" style="border-color:rgba(59,130,246,0.18);">
+            <div class="col-panel-title" style="color:var(--accent-2);border-bottom-color:rgba(59,130,246,0.18);">RAG — Analyst Narrative</div>
+            <div class="rag-steps">
+              <div class="rag-step">
+                <span class="rag-step-num">01</span>
+                <span class="rag-step-text">Fraud score + top SHAP values sent to RAG pipeline as context</span>
+              </div>
+              <div class="rag-step">
+                <span class="rag-step-num">02</span>
+                <span class="rag-step-text">ChromaDB retrieves fraud pattern chunks — relevance threshold 0.3, score-filtered</span>
+              </div>
+              <div class="rag-step">
+                <span class="rag-step-num">03</span>
+                <span class="rag-step-text">GPT-4o-mini generates 2–3 sentence plain-English explanation (OpenAI API)</span>
+              </div>
+              <div class="rag-step">
+                <span class="rag-step-num">04</span>
+                <span class="rag-step-text">Ops agent reads the narrative, contacts cardholder, resolves case</span>
+              </div>
+            </div>
+            <p style="font-size:var(--small-size);color:var(--text-secondary);margin-top:clamp(0.45rem,1vh,0.85rem);">Replaces 3–4 min Confluence lookup per transaction in a real ops queue</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 7 — LIVE DEMO
+       ============================================================ -->
+  <section class="slide" id="slide-7">
+    <div class="glow-blob glow-tl"></div>
+    <div class="bg-num">07</div>
+    <div class="slide-label">07 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>Streamlit app — 4 tabs</h2>
+      </div>
+      <div class="demo-grid reveal">
+        <div class="demo-card">
+          <div class="demo-icon">🎯</div>
+          <div>
+            <div class="demo-card-title">Fraud Checker</div>
+            <div class="demo-card-desc">Input a transaction → instant fraud score + SHAP waterfall chart. See exactly which features drove the decision.</div>
+          </div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-icon">🤖</div>
+          <div>
+            <div class="demo-card-title">RAG Analyst Assistant</div>
+            <div class="demo-card-desc">Plain-English explanation of why the transaction was flagged + free-text Q&amp;A with ChromaDB fraud knowledge base.</div>
+          </div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-icon">📊</div>
+          <div>
+            <div class="demo-card-title">Model Performance</div>
+            <div class="demo-card-desc">3-model comparison table · PR-AUC curves · confusion matrix. XGBoost vs 1D CNN vs Logistic Regression.</div>
+          </div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-icon">🗺️</div>
+          <div>
+            <div class="demo-card-title">Project Roadmap</div>
+            <div class="demo-card-desc">What was built vs planned extensions. Tier 1: Evidently AI, FastAPI. Tier 2: GNN, Kafka, Federated Learning.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Launch bar — click to open live app -->
+      <a href="https://fraud-detection-project-qrp3tzsvh6kp7pmxxuead.streamlit.app"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="reveal"
+         style="
+           display:flex;
+           align-items:center;
+           gap:1rem;
+           margin-top:clamp(0.75rem,1.5vh,1.25rem);
+           background:rgba(0,255,204,0.06);
+           border:1px solid rgba(0,255,204,0.25);
+           border-radius:8px;
+           padding:clamp(0.6rem,1.2vw,1rem) clamp(0.75rem,1.5vw,1.25rem);
+           text-decoration:none;
+           cursor:pointer;
+           transition:background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+         "
+         onmouseover="this.style.background='rgba(0,255,204,0.12)';this.style.borderColor='rgba(0,255,204,0.55)';this.style.boxShadow='0 0 18px rgba(0,255,204,0.15)';"
+         onmouseout="this.style.background='rgba(0,255,204,0.06)';this.style.borderColor='rgba(0,255,204,0.25)';this.style.boxShadow='none';"
+      >
+        <span style="font-size:1.6rem;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(0,255,204,0.6));">▶</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--accent);font-weight:700;letter-spacing:0.08em;margin-bottom:3px;">LAUNCH LIVE DEMO →</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);line-height:1.5;">
+            fraud-detection-project-qrp3tzsvh6kp7pmxxuead.streamlit.app — Fraud Checker · SHAP waterfall · RAG Analyst Assistant
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 8 — INDUSTRY VALIDATION
+       ============================================================ -->
+  <section class="slide" id="slide-8">
+    <div class="glow-blob glow-br"></div>
+    <div class="bg-num">08</div>
+    <div class="slide-label">08 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>This stack mirrors production systems</h2>
+      </div>
+      <div class="company-cards">
+        <div class="company-card reveal">
+          <div class="company-name">Stripe</div>
+          <div class="company-detail">XGBoost → TabTransformer+ · Payments Foundation Model launched May 2025</div>
+          <div class="company-highlight">Card-testing detection improved from 59% → 97%. SHAP used for compliance and chargebacks.</div>
+        </div>
+        <div class="company-card reveal">
+          <div class="company-name">Klarna</div>
+          <div class="company-detail">XGBoost + LightGBM · 200+ models in production on AWS SageMaker</div>
+          <div class="company-highlight">PR-AUC as primary metric — identical to this project's evaluation approach.</div>
+        </div>
+        <div class="company-card reveal">
+          <div class="company-name">Adyen</div>
+          <div class="company-detail">Transformer embeddings + SHAP · merchant category enrichment at inference</div>
+          <div class="company-highlight">Identical architectural pattern to this project's FinBERT + XGBoost combination.</div>
+        </div>
+      </div>
+      <div class="closing-note reveal" style="margin-top:clamp(0.65rem,1.8vh,1.4rem);">
+        This project replicates <span class="accent">Stripe's pre-2024 production architecture</span>: XGBoost with transformer-based feature enrichment.
+        The Payments Foundation Model is the v3.0 roadmap item.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 9 — ROADMAP + CLOSING
+       ============================================================ -->
+  <section class="slide" id="slide-9">
+    <div class="glow-blob glow-tl"></div>
+    <div class="bg-num">09</div>
+    <div class="slide-label">09 <span>/ 09</span></div>
+    <div class="slide-content">
+      <div class="slide-header reveal">
+        <div class="accent-line"></div>
+        <h2>What's next</h2>
+      </div>
+      <div class="roadmap-cols reveal">
+        <div class="roadmap-col built">
+          <div class="roadmap-col-title">✓ BUILT</div>
+          <div class="roadmap-item">XGBoost + FinBERT embeddings</div>
+          <div class="roadmap-item">1D CNN (Keras / TensorFlow)</div>
+          <div class="roadmap-item">SHAP explainability layer</div>
+          <div class="roadmap-item">RAG analyst assistant</div>
+          <div class="roadmap-item">MLflow experiment tracking</div>
+          <div class="roadmap-item">SQLite predictions database</div>
+          <div class="roadmap-item">Streamlit Cloud deployment</div>
+        </div>
+        <div class="roadmap-col tier1">
+          <div class="roadmap-col-title">TIER 1 — Next</div>
+          <div class="roadmap-item">Threshold tuning (scikit-learn TunedThresholdClassifierCV) — move beyond 0.5 default</div>
+          <div class="roadmap-item">Evidently AI drift detection</div>
+          <div class="roadmap-item">Isolation Forest anomaly detection</div>
+          <div class="roadmap-item">FastAPI REST endpoint</div>
+          <div class="roadmap-item">Docker containerisation</div>
+        </div>
+        <div class="roadmap-col tier2">
+          <div class="roadmap-col-title">TIER 2 — Future</div>
+          <div class="roadmap-item">Graph Neural Network (PyTorch Geometric)</div>
+          <div class="roadmap-item">Kafka real-time streaming</div>
+          <div class="roadmap-item">Federated Learning (Flower)</div>
+          <div class="roadmap-item">Stripe Payments Foundation Model architecture</div>
+        </div>
+      </div>
+      <div class="closing-note reveal" style="margin-top:clamp(0.65rem,1.8vh,1.4rem);">
+        Built on 1.3M transactions with domain knowledge from Stripe fraud ops.
+        Every feature, model, and explainability layer reflects real production priorities.
+        <span style="color:var(--text-secondary);font-family:var(--font-mono);font-size:var(--small-size);display:block;margin-top:6px;">
+          github.com/Irish-Lev/fraud-detection-project
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /* =====================================================
+       SLIDE PRESENTATION CONTROLLER
+       ===================================================== */
+    class SlidePresentation {
+      constructor() {
+        this.slides        = Array.from(document.querySelectorAll('.slide'));
+        this.currentSlide  = 0;
+        this.progressBar   = document.getElementById('progressBar');
+        this.navDotsEl     = document.getElementById('navDots');
+        this.lastWheelTime = 0;
+
+        this.setupIntersectionObserver();
+        this.setupNavDots();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.updateProgress();
+      }
+
+      setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              this.currentSlide = this.slides.indexOf(entry.target);
+              this.updateProgress();
+              this.updateNavDots();
+            }
+          });
+        }, { threshold: 0.5 });
+        this.slides.forEach(s => observer.observe(s));
+      }
+
+      scrollToSlide(idx) {
+        if (idx < 0 || idx >= this.slides.length) return;
+        this.slides[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        this.currentSlide = idx;
+      }
+
+      setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+          if (document.body.classList.contains('edit-active') &&
+              document.activeElement.getAttribute('contenteditable')) return;
+          switch (e.key) {
+            case 'ArrowDown': case 'ArrowRight': case ' ':
+              e.preventDefault(); this.scrollToSlide(this.currentSlide + 1); break;
+            case 'ArrowUp': case 'ArrowLeft':
+              e.preventDefault(); this.scrollToSlide(this.currentSlide - 1); break;
+            case 'PageDown':
+              e.preventDefault(); this.scrollToSlide(this.currentSlide + 1); break;
+            case 'PageUp':
+              e.preventDefault(); this.scrollToSlide(this.currentSlide - 1); break;
+            case 'Home':
+              e.preventDefault(); this.scrollToSlide(0); break;
+            case 'End':
+              e.preventDefault(); this.scrollToSlide(this.slides.length - 1); break;
+          }
+        });
+      }
+
+      setupTouchNav() {
+        let startY = 0, startX = 0;
+        document.addEventListener('touchstart', e => {
+          startY = e.touches[0].clientY;
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+          const dy = startY - e.changedTouches[0].clientY;
+          const dx = startX - e.changedTouches[0].clientX;
+          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 45) {
+            dy > 0
+              ? this.scrollToSlide(this.currentSlide + 1)
+              : this.scrollToSlide(this.currentSlide - 1);
+          }
+        }, { passive: true });
+      }
+
+      setupWheelNav() {
+        document.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const now = Date.now();
+          if (now - this.lastWheelTime < 850) return;
+          this.lastWheelTime = now;
+          e.deltaY > 0
+            ? this.scrollToSlide(this.currentSlide + 1)
+            : this.scrollToSlide(this.currentSlide - 1);
+        }, { passive: false });
+      }
+
+      updateProgress() {
+        const pct = this.slides.length > 1
+          ? (this.currentSlide / (this.slides.length - 1)) * 100
+          : 0;
+        this.progressBar.style.width = pct + '%';
+      }
+
+      setupNavDots() {
+        this.navDotsEl.innerHTML = '';
+        this.slides.forEach((_, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+          btn.setAttribute('aria-label', `Slide ${i + 1}`);
+          btn.addEventListener('click', () => this.scrollToSlide(i));
+          this.navDotsEl.appendChild(btn);
+        });
+      }
+
+      updateNavDots() {
+        this.navDotsEl.querySelectorAll('.nav-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === this.currentSlide);
+        });
+      }
+    }
+
+    /* =====================================================
+       INLINE EDITOR
+       ===================================================== */
+    class InlineEditor {
+      editableSelectors = [
+        'h1','h2','h3','p','li',
+        '.stat-value','.stat-label','.stat-desc',
+        '.model-name','.model-desc',
+        '.company-detail','.company-highlight',
+        '.roadmap-item','.eda-text','.fact-val',
+        '.rag-step-text','.demo-card-title','.demo-card-desc',
+        '.pull-quote','.closing-note','.title-tagline',
+        '.step-desc','.step-name','.col-panel-title',
+        '.company-name','.title-eyebrow'
+      ].join(',');
+
+      constructor() {
+        this.isActive   = false;
+        this.toggle     = document.getElementById('editToggle');
+        this.banner     = document.getElementById('editBanner');
+        this.hotzone    = document.getElementById('editHotzone');
+        this.hideTimer  = null;
+
+        this.hotzone.addEventListener('mouseenter', () => {
+          clearTimeout(this.hideTimer);
+          this.toggle.classList.add('show');
+        });
+        this.hotzone.addEventListener('mouseleave', () => {
+          this.hideTimer = setTimeout(() => {
+            if (!this.isActive) this.toggle.classList.remove('show');
+          }, 400);
+        });
+        this.toggle.addEventListener('mouseenter', () => clearTimeout(this.hideTimer));
+        this.toggle.addEventListener('mouseleave', () => {
+          this.hideTimer = setTimeout(() => {
+            if (!this.isActive) this.toggle.classList.remove('show');
+          }, 400);
+        });
+        this.hotzone.addEventListener('click', () => this.toggleEdit());
+        this.toggle.addEventListener('click',  () => this.toggleEdit());
+
+        document.addEventListener('keydown', (e) => {
+          if ((e.key === 'e' || e.key === 'E') &&
+              !document.activeElement.getAttribute('contenteditable')) {
+            this.toggleEdit();
+          }
+          if ((e.ctrlKey || e.metaKey) && e.key === 's' && this.isActive) {
+            e.preventDefault();
+            this.exportFile();
+          }
+        });
+      }
+
+      toggleEdit() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('edit-active', this.isActive);
+        if (this.isActive) {
+          this.toggle.textContent = '✓ EDITING';
+          this.toggle.classList.add('active');
+          this.banner.classList.add('active');
+          document.querySelectorAll(this.editableSelectors)
+            .forEach(el => el.setAttribute('contenteditable', 'true'));
+        } else {
+          this.toggle.textContent = '✏ EDIT';
+          this.toggle.classList.remove('active', 'show');
+          this.banner.classList.remove('active');
+          document.querySelectorAll('[contenteditable]')
+            .forEach(el => el.removeAttribute('contenteditable'));
+        }
+      }
+
+      exportFile() {
+        const editables = Array.from(document.querySelectorAll('[contenteditable]'));
+        editables.forEach(el => el.removeAttribute('contenteditable'));
+        document.body.classList.remove('edit-active');
+        this.toggle.classList.remove('active', 'show');
+        this.banner.classList.remove('active');
+
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+        document.body.classList.add('edit-active');
+        editables.forEach(el => el.setAttribute('contenteditable', 'true'));
+        this.toggle.classList.add('active');
+        this.banner.classList.add('active');
+
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'fraud_detection_presentation.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+    }
+
+    const presentation = new SlidePresentation();
+    const editor = new InlineEditor();
+  </script>
+</body>
+</html>
