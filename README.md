@@ -2,7 +2,7 @@
 > Ironhack Data Science & ML Bootcamp — Individual Project
 > Irish-Lev · Barcelona 2026
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fraud-detection-project-qrp3tzsvh6kp7pmxxuead.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fraud-detection-project-hks77bwcrgjmpfxv8jycsm.streamlit.app)
 
 ---
 

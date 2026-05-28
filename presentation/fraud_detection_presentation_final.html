@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fraud Detection ML System — Irish-Lev · Ironhack Barcelona 2026</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&amp;family=Space+Grotesk:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
 
   <style>
     /* =====================================================
@@ -911,19 +910,19 @@
     }
   </style>
 </head>
-<body>
+<body class="">
 
-  <div class="progress-bar" id="progressBar"></div>
-  <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+  <div class="progress-bar" id="progressBar" style="width: 12.5%;"></div>
+  <nav class="nav-dots" id="navDots" aria-label="Slide navigation"><button class="nav-dot" aria-label="Slide 1"></button><button class="nav-dot active" aria-label="Slide 2"></button><button class="nav-dot" aria-label="Slide 3"></button><button class="nav-dot" aria-label="Slide 4"></button><button class="nav-dot" aria-label="Slide 5"></button><button class="nav-dot" aria-label="Slide 6"></button><button class="nav-dot" aria-label="Slide 7"></button><button class="nav-dot" aria-label="Slide 8"></button><button class="nav-dot" aria-label="Slide 9"></button></nav>
 
   <div class="edit-hotzone" id="editHotzone"></div>
-  <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏ EDIT</button>
+  <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✓ EDITING</button>
   <div class="edit-banner" id="editBanner">EDIT MODE — Click any text · Ctrl+S to save</div>
 
   <!-- ============================================================
        SLIDE 1 — TITLE
        ============================================================ -->
-  <section class="slide title-slide" id="slide-1">
+  <section class="slide title-slide visible" id="slide-1">
     <div class="glow-blob glow-tl"></div>
     <div class="glow-blob glow-br"></div>
     <div class="slide-content">
@@ -944,14 +943,14 @@
   <!-- ============================================================
        SLIDE 2 — BUSINESS PROBLEM
        ============================================================ -->
-  <section class="slide" id="slide-2">
+  <section class="slide visible" id="slide-2">
     <div class="glow-blob glow-br" style="background: radial-gradient(ellipse, rgba(239,68,68,0.09) 0%, transparent 70%);"></div>
     <div class="bg-num">02</div>
     <div class="slide-label">02 <span>/ 09</span></div>
     <div class="slide-content">
       <div class="slide-header reveal">
         <div class="accent-line"></div>
-        <h2>I worked this queue at Stripe.<br>Here is what a bad model costs.</h2>
+        <h2><h2 style="font-family: Syne, sans-serif; font-size: 28px; color: rgb(240, 253, 244); outline: rgb(0, 255, 204) solid 1.6px; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial;">Payment fraud is an ops problem, not just a math problem.</h2>Here is what a bad model costs.</h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(0.5rem,1.4vw,1.1rem);margin-bottom:clamp(0.6rem,1.8vh,1.4rem);">
         <div class="stat-card reveal">
@@ -971,7 +970,7 @@
         </div>
       </div>
       <div class="pull-quote reveal">
-        "At Stripe I saw what happens when a model flags without explaining — agents guess, cardholders churn, merchants dispute. This project is the tool I wished existed."
+        "At Stripe I saw what happens when a model flags without explaining — agents guess, cardholders churn, merchants dispute.&nbsp; A<span style="font-size: 14.08px;">&nbsp;score without a reason is not actionable for a fraud ops agent.</span>"
       </div>
     </div>
   </section>
@@ -979,7 +978,7 @@
   <!-- ============================================================
        SLIDE 3 — ARCHITECTURE
        ============================================================ -->
-  <section class="slide" id="slide-3">
+  <section class="slide visible" id="slide-3">
     <div class="glow-blob glow-tl"></div>
     <div class="bg-num">03</div>
     <div class="slide-label">03 <span>/ 09</span></div>
@@ -1048,7 +1047,7 @@
   <!-- ============================================================
        SLIDE 4 — DATASET + EDA
        ============================================================ -->
-  <section class="slide" id="slide-4">
+  <section class="slide visible" id="slide-4">
     <div class="glow-blob glow-br"></div>
     <div class="bg-num">04</div>
     <div class="slide-label">04 <span>/ 09</span></div>
@@ -1115,7 +1114,7 @@
   <!-- ============================================================
        SLIDE 5 — THREE MODELS
        ============================================================ -->
-  <section class="slide" id="slide-5">
+  <section class="slide visible" id="slide-5">
     <div class="glow-blob glow-tl"></div>
     <div class="bg-num">05</div>
     <div class="slide-label">05 <span>/ 09</span></div>
@@ -1166,7 +1165,7 @@
   <!-- ============================================================
        SLIDE 6 — SHAP + RAG EXPLAINABILITY
        ============================================================ -->
-  <section class="slide" id="slide-6">
+  <section class="slide visible" id="slide-6">
     <div class="glow-blob glow-br"></div>
     <div class="bg-num">06</div>
     <div class="slide-label">06 <span>/ 09</span></div>
@@ -1243,7 +1242,7 @@
   <!-- ============================================================
        SLIDE 7 — LIVE DEMO
        ============================================================ -->
-  <section class="slide" id="slide-7">
+  <section class="slide visible" id="slide-7">
     <div class="glow-blob glow-tl"></div>
     <div class="bg-num">07</div>
     <div class="slide-label">07 <span>/ 09</span></div>
@@ -1283,11 +1282,7 @@
         </div>
       </div>
       <!-- Launch bar — click to open live app -->
-      <a href="https://fraud-detection-project-hks77bwcrgjmpfxv8jycsm.streamlit.app"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="reveal"
-         style="
+      <a href="https://fraud-detection-project-hks77bwcrgjmpfxv8jycsm.streamlit.app" target="_blank" rel="noopener noreferrer" class="reveal" style="
            display:flex;
            align-items:center;
            gap:1rem;
@@ -1299,10 +1294,7 @@
            text-decoration:none;
            cursor:pointer;
            transition:background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-         "
-         onmouseover="this.style.background='rgba(0,255,204,0.12)';this.style.borderColor='rgba(0,255,204,0.55)';this.style.boxShadow='0 0 18px rgba(0,255,204,0.15)';"
-         onmouseout="this.style.background='rgba(0,255,204,0.06)';this.style.borderColor='rgba(0,255,204,0.25)';this.style.boxShadow='none';"
-      >
+         " onmouseover="this.style.background='rgba(0,255,204,0.12)';this.style.borderColor='rgba(0,255,204,0.55)';this.style.boxShadow='0 0 18px rgba(0,255,204,0.15)';" onmouseout="this.style.background='rgba(0,255,204,0.06)';this.style.borderColor='rgba(0,255,204,0.25)';this.style.boxShadow='none';">
         <span style="font-size:1.6rem;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(0,255,204,0.6));">▶</span>
         <div>
           <div style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--accent);font-weight:700;letter-spacing:0.08em;margin-bottom:3px;">LAUNCH LIVE DEMO →</div>
@@ -1317,7 +1309,7 @@
   <!-- ============================================================
        SLIDE 8 — INDUSTRY VALIDATION
        ============================================================ -->
-  <section class="slide" id="slide-8">
+  <section class="slide visible" id="slide-8">
     <div class="glow-blob glow-br"></div>
     <div class="bg-num">08</div>
     <div class="slide-label">08 <span>/ 09</span></div>
@@ -1353,47 +1345,56 @@
   <!-- ============================================================
        SLIDE 9 — ROADMAP + CLOSING
        ============================================================ -->
-  <section class="slide" id="slide-9">
+  <section class="slide visible" id="slide-9">
     <div class="glow-blob glow-tl"></div>
     <div class="bg-num">09</div>
     <div class="slide-label">09 <span>/ 09</span></div>
     <div class="slide-content">
       <div class="slide-header reveal">
         <div class="accent-line"></div>
-        <h2>What's next</h2>
+        <h2>Challenges, learnings and what comes next</h2>
       </div>
-      <div class="roadmap-cols reveal">
-        <div class="roadmap-col built">
-          <div class="roadmap-col-title">✓ BUILT</div>
-          <div class="roadmap-item">XGBoost + FinBERT embeddings</div>
-          <div class="roadmap-item">1D CNN (Keras / TensorFlow)</div>
-          <div class="roadmap-item">SHAP explainability layer</div>
-          <div class="roadmap-item">RAG analyst assistant</div>
-          <div class="roadmap-item">MLflow experiment tracking</div>
-          <div class="roadmap-item">SQLite predictions database</div>
-          <div class="roadmap-item">Streamlit Cloud deployment</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(0.6rem,1.4vw,1.2rem);margin-bottom:clamp(0.5rem,1.2vh,1rem);">
+
+        <!-- Column 1: Challenges -->
+        <div class="reveal" style="background:var(--bg-secondary);border:1px solid rgba(239,68,68,0.25);border-radius:var(--border-radius-md);padding:clamp(0.6rem,1.2vw,1rem);">
+          <div style="font-family:var(--font-mono);font-size:var(--small-size);color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:clamp(0.4rem,0.8vh,0.7rem);">⚠ Challenges faced</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);line-height:1.6;display:flex;flex-direction:column;gap:6px;">
+            <div><span style="color:var(--accent);">Class imbalance</span> — 0.58% fraud rate makes accuracy meaningless. Solved: SMOTE on training set only + PR-AUC as primary metric.</div>
+            <div><span style="color:var(--accent);">RAG answered wrong</span> — Conceptual questions returned transaction-specific answers. Solved: 3 prompt iterations + score-filtered retrieval at threshold 0.3.</div>
+            <div><span style="color:var(--accent);">ChromaDB on Windows</span> — PermissionError on file deletion (file lock). Solved: load from disk instead of rebuilding.</div>
+          </div>
         </div>
-        <div class="roadmap-col tier1">
-          <div class="roadmap-col-title">TIER 1 — Next</div>
-          <div class="roadmap-item">Threshold tuning (scikit-learn TunedThresholdClassifierCV) — move beyond 0.5 default</div>
-          <div class="roadmap-item">Evidently AI drift detection</div>
-          <div class="roadmap-item">Isolation Forest anomaly detection</div>
-          <div class="roadmap-item">FastAPI REST endpoint</div>
-          <div class="roadmap-item">Docker containerisation</div>
+
+        <!-- Column 2: Learnings -->
+        <div class="reveal" style="background:var(--bg-secondary);border:1px solid rgba(0,255,204,0.2);border-radius:var(--border-radius-md);padding:clamp(0.6rem,1.2vw,1rem);">
+          <div style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:clamp(0.4rem,0.8vh,0.7rem);">✓ Key learnings</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);line-height:1.6;display:flex;flex-direction:column;gap:6px;">
+            <div><span style="color:var(--accent);">Amount &gt; geo_distance</span> — In the actual SHAP output, transaction amount (+5.62) was the top driver, not geo_distance. The data surprised me.</div>
+            <div><span style="color:var(--accent);">F1 at 0.5 is misleading</span> — CNN scored higher F1 than XGBoost at default threshold, but lower PR-AUC overall. Metric choice matters.</div>
+            <div><span style="color:var(--accent);">Threshold matters</span> — My teacher was right. Default 0.5 is arbitrary. Tier 1 priority: TunedThresholdClassifierCV with a cost matrix.</div>
+          </div>
         </div>
-        <div class="roadmap-col tier2">
-          <div class="roadmap-col-title">TIER 2 — Future</div>
-          <div class="roadmap-item">Graph Neural Network (PyTorch Geometric)</div>
-          <div class="roadmap-item">Kafka real-time streaming</div>
-          <div class="roadmap-item">Federated Learning (Flower)</div>
-          <div class="roadmap-item">Stripe Payments Foundation Model architecture</div>
+
+        <!-- Column 3: Roadmap -->
+        <div class="reveal" style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,0.25);border-radius:var(--border-radius-md);padding:clamp(0.6rem,1.2vw,1rem);">
+          <div style="font-family:var(--font-mono);font-size:var(--small-size);color:#3b82f6;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:clamp(0.4rem,0.8vh,0.7rem);">→ What comes next</div>
+          <div style="font-size:var(--small-size);color:var(--text-secondary);line-height:1.6;display:flex;flex-direction:column;gap:5px;">
+            <div style="color:var(--text-primary);font-weight:500;">Tier 1 — MLOps</div>
+            <div>Threshold tuning · Evidently AI drift · FastAPI + Docker</div>
+            <div style="color:var(--text-primary);font-weight:500;margin-top:4px;">Tier 2 — Research</div>
+            <div>Graph Neural Network · Kafka streaming · Federated Learning</div>
+            <div style="color:var(--text-primary);font-weight:500;margin-top:4px;">v3.0 vision</div>
+            <div>Stripe Payments Foundation Model architecture</div>
+          </div>
         </div>
+
       </div>
-      <div class="closing-note reveal" style="margin-top:clamp(0.65rem,1.8vh,1.4rem);">
-        Built on 1.3M transactions with domain knowledge from Stripe fraud ops.
-        Every feature, model, and explainability layer reflects real production priorities.
-        <span style="color:var(--text-secondary);font-family:var(--font-mono);font-size:var(--small-size);display:block;margin-top:6px;">
-          github.com/Irish-Lev/fraud-detection-project
+      <div class="closing-note reveal">
+        Built on 1.3M transactions with domain knowledge from Stripe fraud ops —
+        every feature, model, and explainability layer reflects real production priorities.
+        <span style="color:var(--text-secondary);font-family:var(--font-mono);font-size:var(--small-size);display:block;margin-top:4px;">
+          github.com/Irish-Lev/fraud-detection-project &nbsp;·&nbsp; Thank you.
         </span>
       </div>
     </div>
@@ -1611,5 +1612,6 @@
     const presentation = new SlidePresentation();
     const editor = new InlineEditor();
   </script>
-</body>
-</html>
+
+
+</body></html>
