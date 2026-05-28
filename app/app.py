@@ -526,7 +526,7 @@ with tab3:
 """)
 
     with col2:
-        st.markdown("### 🔧 Completing now")
+        st.markdown("### 🔧 Completed")
         st.markdown("""
 - **RAG Fraud Analyst Assistant** ✅ — LangChain + ChromaDB + GPT-4o-mini
   Ask plain-English questions about fraud patterns and get sourced answers from the knowledge base
@@ -537,14 +537,16 @@ with tab3:
 """)
 
     with col3:
-        st.markdown("### 🚀 v2.0 Roadmap")
+        st.markdown("### 🚀 v2.0 and v3.0 Roadmap")
         st.markdown("""
+- **Threshold Tuning** — TunedThresholdClassifierCV for optimal PR-AUC instead of default 0.5 threshold
 - **Drift detection** — Evidently AI for monitoring model degradation over time
 - **Anomaly detection** — Isolation Forest + Autoencoder for unsupervised signals
 - **Graph Neural Network** — model cardholder-merchant relationships as a graph
 - **Kafka streaming** — real-time transaction scoring pipeline
 - **Federated learning** — train across institutions without sharing raw data
 - **FastAPI + Docker** — production API container for model serving
+- **v3.0 vision** — Stripe Payments Foundation Model Architecture
 """)
 
     st.divider()
