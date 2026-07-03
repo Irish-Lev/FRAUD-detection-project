@@ -1,0 +1,38 @@
+{
+  "default_threshold": 0.5,
+  "tuned_threshold": 0.9293,
+  "source_model_run_id": "5efff04657374dbbbaa528abb94a1414",
+  "tuning_run_id": "ef56e65012fc459ca9d7c4a4c2293051",
+  "cost_assumptions": {
+    "avg_fraud_amount": 396.5,
+    "avg_fraud_amount_note": "Median fraud amount from fraudTrain.csv (measured, right-skewed distribution)",
+    "investigation_cost": 10.0,
+    "investigation_cost_note": "PLACEHOLDER ASSUMPTION \u2014 not measured from real ops data"
+  },
+  "test_set_metrics": {
+    "default": {
+      "threshold": "default (0.5)",
+      "precision": 0.09530018004594276,
+      "recall": 0.9890463917525774,
+      "f1": 0.17384902882382922,
+      "tn": 243211.0,
+      "fp": 14572.0,
+      "fn": 17.0,
+      "tp": 1535.0,
+      "total_cost": 152460.5
+    },
+    "tuned": {
+      "threshold": "tuned (0.9293)",
+      "precision": 0.3137381567614126,
+      "recall": 0.9387886597938144,
+      "f1": 0.47030342156229826,
+      "tn": 254596.0,
+      "fp": 3187.0,
+      "fn": 95.0,
+      "tp": 1457.0,
+      "total_cost": 69537.5
+    },
+    "pr_auc": 0.8461564469852149
+  },
+  "generated_at": "2026-07-03T16:51:33.717153"
+}
