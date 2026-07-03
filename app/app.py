@@ -10,6 +10,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import json
 import shap
 import matplotlib
 matplotlib.use('Agg')
@@ -37,6 +38,7 @@ ROOT       = APP_DIR.parent
 MODELS_DIR = ROOT / 'models'
 DATA_PROC  = ROOT / 'data' / 'processed'
 DATA_EMB   = ROOT / 'data' / 'embeddings'
+THRESHOLD_CONFIG_PATH = MODELS_DIR / 'threshold_config.json'
 
 # Sparkov merchant categories 
 CATEGORIES = sorted([
@@ -140,6 +142,14 @@ def get_model_features(_model):
         return []
     names = _model.get_booster().feature_names
     return names if names else []
+
+@st.cache_data
+def load_threshold_config():
+    """Load the cost-optimized threshold from notebook 07. Falls back to 0.5 if not yet generated."""
+    if not THRESHOLD_CONFIG_PATH.exists():
+        return {'tuned_threshold': 0.5, 'default_threshold': 0.5}
+    with open(THRESHOLD_CONFIG_PATH) as f:
+        return json.load(f)
 
 # Feature vector builder 
 def build_feature_vector(amt, category, hour, geo_dist, velocity,
@@ -273,6 +283,8 @@ feature_names = get_model_features(model)
 texts, embs   = load_embeddings()
 cat_lookup    = build_category_lookup(texts, embs)
 explainer     = load_explainer(model) if model is not None else None
+threshold_config = load_threshold_config()
+TUNED_THRESHOLD   = threshold_config['tuned_threshold']
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TABS
@@ -389,6 +401,20 @@ with tab1:
                 st.warning("⚠️  **MEDIUM RISK** — Secondary review advised")
             else:
                 st.success("✅  **LOW RISK** — Transaction appears legitimate")
+
+            st.divider()
+            is_flagged = fraud_prob >= TUNED_THRESHOLD
+            st.markdown("**Model Decision (cost-optimized threshold)**")
+            if is_flagged:
+                st.markdown(f"🔴 **FLAGGED FOR REVIEW** — score {fraud_prob:.4f} ≥ threshold {TUNED_THRESHOLD:.4f}")
+            else:
+                st.markdown(f"🟢 **CLEARED** — score {fraud_prob:.4f} < threshold {TUNED_THRESHOLD:.4f}")
+            st.caption(
+                f"Threshold {TUNED_THRESHOLD:.4f} was found by minimizing total cost "
+                f"(missed fraud ≈ $396.50 vs false-alarm investigation ≈ $10 — see Model Performance tab). "
+                f"This is a stricter bar than the risk gauge above — a transaction scoring 'High Risk' on the "
+                f"gauge (≥70%) may still be CLEARED here unless it exceeds {TUNED_THRESHOLD*100:.1f}%."
+            )
 
             st.markdown("**Transaction Summary**")
             summary = {
